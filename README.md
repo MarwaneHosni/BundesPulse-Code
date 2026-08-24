@@ -19,13 +19,14 @@ Städte.
 ## Repository layout
 
 ```
-apps/web/        React frontend (Vite · TypeScript · Tailwind · shadcn/ui · TanStack Query)
+apps/web/        React frontend (Vite · TypeScript · Tailwind · ECharts · MapLibre GL)
 backend/         FastAPI read-only backend (FastAPI · Pydantic · DuckDB read_only)
   api/           REST routes + schemas
   analytics/     analytical computations (foundation)
   insights/      insight engine (foundation)
   tests/         backend unit tests
 pipeline/        offline data-build (sources/ transforms/ validation/) — Phase 3
+  requirements.txt (Polars · GeoPandas)
 data/            raw | processed | geography | snapshots  (gitignored)
 docs/            product-spec.md · architecture.md · phase reports
 tests/           cross-cutting / integration tests (later phases)
@@ -51,6 +52,17 @@ npm run dev:api
 # 3. Run the web app (http://localhost:5173; proxies /api to :8000)
 npm run dev:web
 ```
+
+Start the app in a second terminal if you haven't already:
+
+```bash
+npm run dev:web   # terminal 1
+npm run dev:api   # terminal 2
+```
+
+Open http://localhost:5173 — the home page shows the app name, the seven
+domains, and a small ECharts placeholder diagram; the header shows the live
+backend connection status.
 
 ## Development commands
 

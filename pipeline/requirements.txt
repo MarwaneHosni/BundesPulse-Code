@@ -1,0 +1,11 @@
+# Offline data preparation (data-build). Runs outside the web app.
+# Install with: pip install -r requirements.txt   (or into the project venv)
+#
+# The pipeline turns government data into the immutable DuckDB snapshot
+# (see docs/architecture.md). These tools are NOT part of the runtime stack.
+
+polars>=1.0
+pandas>=2.0
+geopandas>=1.0
+shapely>=2.0
+duckdb>=1.0

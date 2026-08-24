@@ -39,7 +39,7 @@ and has no authentication.
 ```
 BundesPulse/
 ├── apps/
-│   └── web/                  React frontend (Vite, TS, Tailwind, shadcn/ui)
+│   └── web/                  React frontend (Vite, TS, Tailwind, ECharts, MapLibre GL)
 ├── backend/                  FastAPI backend — also the `backend` Python package
 │   ├── api/                  REST routes + Pydantic schemas
 │   ├── analytics/            analytical computations (foundation; Phase 3+)
@@ -89,6 +89,8 @@ BundesPulse/
 
 * `apps/web` — React 18 + TypeScript, built with Vite.
 * Styling: Tailwind CSS with shadcn/ui-style components (`src/components/ui/`).
+* Charts: Apache ECharts (modular imports). MapLibre GL is a declared
+  dependency ready for the Explore map (later phase).
 * Server state: TanStack Query (`QueryClient` in `src/App.tsx`; health fetched
   via `src/lib/queries.ts`).
 * API client: `src/lib/api.ts` — GET-only, base from `VITE_API_BASE_URL`

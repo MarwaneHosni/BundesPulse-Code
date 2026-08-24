@@ -72,3 +72,22 @@ Phase 3 — data-build pipeline: lock the indicator catalogue against real sourc
 availability (`backend/analytics` + `pipeline/`), produce
 `data/snapshots/bundespulse.duckdb`, define the domain schema, then expose
 `/api` data endpoints.
+
+## Addendum (2026-08-24)
+
+Foundation pass per the simplified stack playbook:
+
+- Added the declared frontend stack libraries **Apache ECharts** (`echarts`)
+  and **MapLibre GL** (`maplibre-gl`) to `apps/web/package.json`.
+  `npm audit`: 0 vulnerabilities.
+- ECharts is exercised on the home page via `src/components/domains-chart.tsx`
+  (clearly-labelled illustrative placeholder, modular imports to keep the
+  bundle small). MapLibre stays a declared dependency for the Explore map.
+- Test infra: stubbed canvas + `ResizeObserver` in `src/test/setup.ts` so
+  chart components render under jsdom (all 4 web tests pass).
+- Data-prep stack declared in `pipeline/requirements.txt` (Polars, pandas,
+  GeoPandas, Shapely, DuckDB) — installed in Phase 3.
+- README updated with simple start instructions; architecture doc reflects the
+  actual stack.
+- Re-validated: backend tests (3) + ruff clean; web build, lint, tests (4) all
+  green; dev-server proxy `5173/api/health → 8000` returns live JSON.

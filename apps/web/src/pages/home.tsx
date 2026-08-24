@@ -1,4 +1,5 @@
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { DomainsChart } from "@/components/domains-chart"
 
 const DOMAINS = [
   "Demography",
@@ -23,22 +24,25 @@ export function HomePage() {
         </p>
       </div>
 
-      <div className="mt-10">
-        <h2 className="mb-3 text-sm font-medium text-muted-foreground">
-          Sieben Handlungsfelder (v1)
-        </h2>
-        <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
-          {DOMAINS.map((domain) => (
-            <Card key={domain}>
-              <CardHeader>
-                <CardTitle>{domain}</CardTitle>
-                <CardDescription>
-                  Indikator-Katalog laut product-spec.md §6.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          ))}
+      <div className="mt-10 grid gap-6 lg:grid-cols-2">
+        <div>
+          <h2 className="mb-3 text-sm font-medium text-muted-foreground">
+            Sieben Handlungsfelder (v1)
+          </h2>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {DOMAINS.map((domain) => (
+              <Card key={domain}>
+                <CardHeader>
+                  <CardTitle>{domain}</CardTitle>
+                  <CardDescription>
+                    Indikator-Katalog laut product-spec.md §6.
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            ))}
+          </div>
         </div>
+        <DomainsChart />
       </div>
     </div>
   )

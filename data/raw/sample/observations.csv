@@ -1,0 +1,50 @@
+region_id,indicator,period,value,source_id
+DE,pop_total,2020,83155031,1
+DE,pop_total,2021,83196686,1
+DE,pop_total,2022,84358845,1
+DE,pop_total,2023,84482267,1
+DE-BW,pop_total,2020,11069533,1
+DE-BW,pop_total,2021,11125231,1
+DE-BW,pop_total,2022,11164366,1
+DE-BW,pop_total,2023,11208527,1
+DE2,pop_total,2020,13124737,1
+DE2,pop_total,2021,13176989,1
+DE2,pop_total,2022,13246935,1
+DE2,pop_total,2023,13358543,1
+DE11,pop_total,2020,393429,1
+DE11,pop_total,2021,394782,1
+DE11,pop_total,2022,395715,1
+DE11,pop_total,2023,398244,1
+DEBS,pop_total,2020,630305,1
+DEBS,pop_total,2021,630389,1
+DEBS,pop_total,2022,634621,1
+DEBS,pop_total,2023,641862,1
+DEBS,pop_total,2023,641862,1
+  DE21  ,pop_total,2020,349685,1
+  DE21  ,pop_total,2021,350948,1
+  DE21  ,pop_total,2022,353791,1
+  DE21  ,pop_total,2023,357800,1
+DE,unemp_rate,2023,5.7,2
+DE-BW,unemp_rate,2023,3.8,2
+DE2,unemp_rate,2023,3.7,2
+DE11,unemp_rate,2023,2.6,2
+DEBS,unemp_rate,2023,4.1,2
+DE21,unemp_rate,2023,2.8,2
+DE,gdp_pc,2022,46253,3
+DE-BW,gdp_pc,2022,51163,3
+DE2,gdp_pc,2022,52289,3
+DE11,gdp_pc,2022,47220,3
+DEBS,gdp_pc,2022,55700,3
+DE21,gdp_pc,2022,59672,3
+DE,cars_pc,2023,580,4
+DE-BW,cars_pc,2023,625,4
+DE2,cars_pc,2023,640,4
+DE11,cars_pc,2023,702,4
+DEBS,cars_pc,2023,501,4
+DE21,cars_pc,2023,690,4
+DE,co2_pc,2021,7.1,5
+DE-BW,co2_pc,2021,6.2,5
+DE2,co2_pc,2021,6.8,5
+DE11,co2_pc,2021,6.9,5
+DEBS,co2_pc,2021,3.9,5
+DE21,co2_pc,2021,6.5,5

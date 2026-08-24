@@ -1,0 +1,7 @@
+region_id,name,type,parent_id,area
+DE,Deutschland,bund,,357588.0
+DE1,Baden-Württemberg,bundesland,DE,35748.0
+DE2,Bayern,bundesland,DE,70542.0
+DE11,Landkreis Böblingen,landkreis,DE1,617.5
+DE12,Stuttgart (Stadtkreis),kreisfreie_stadt,DE1,207.4
+DE21,Landkreis München,landkreis,DE2,667.0

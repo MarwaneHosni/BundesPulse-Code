@@ -45,7 +45,7 @@ BundesPulse/
 │   ├── analytics/            analytical computations (foundation; Phase 3+)
 │   ├── insights/             insight engine (foundation; Phase 3+)
 │   └── tests/                backend unit tests
-├── pipeline/                 offline data-build (foundation skeleton; Phase 3)
+├── pipeline/                 offline data-build (build_data.py + stage scaffolds)
 │   ├── sources/
 │   ├── transforms/
 │   └── validation/
@@ -78,6 +78,20 @@ BundesPulse/
 * If no snapshot exists yet, the health endpoint reports an honest
   `configured: false` / `status: degraded` state. Data routes arrive in a
   later phase once the snapshot schema is defined.
+
+### Snapshot schema
+
+Produced offline by `pipeline/build_data.py` (linear: clean → map ids →
+normalize → validate → write). Four tables:
+
+* `regions(region_id, name, type, parent_id, area)`
+* `indicators(indicator_id, slug, name, category, unit, description, raw_or_derived)`
+* `observations(region_id, indicator_id, period, value, source_id)`
+* `sources(source_id, provider, dataset, url, retrieval_date)`
+
+Validation gates the build: unknown region/indicator references, duplicate
+rows, and non-finite/out-of-range values fail loudly instead of shipping a bad
+snapshot.
 
 ### Runtime rules
 - Only **GET-style, side-effect-free** endpoints.
@@ -152,9 +166,10 @@ Canonical commands (PowerShell/macOS zsh compatible):
 
 ## 9. What this phase deliberately does NOT provide
 
-* Data endpoints/domain models (spec §8) — depends on the snapshot schema
-  (Phase 3).
-* The data-build pipeline implementation — `pipeline/` is a scaffold only.
+* Data endpoints/domain models (spec §8) — the snapshot schema now exists
+  (see "Snapshot schema" above); read-only `/api` data routes come next.
+* Official-source extraction and the full indicator catalogue —
+  `build_data.py` establishes the workflow on committed sample data.
 * Docker image builds — `docker-compose.yml` + Dockerfiles are written and
   `docker compose config` validates, but builds are parked until the stack is
   exercised (see README "Running with Docker").

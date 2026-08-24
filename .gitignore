@@ -21,6 +21,8 @@ data/raw/*
 data/processed/*
 data/snapshots/*
 !data/raw/.gitkeep
+!data/raw/sample/
+!data/raw/sample/*.csv
 !data/processed/.gitkeep
 !data/snapshots/.gitkeep
 

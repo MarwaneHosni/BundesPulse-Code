@@ -14,7 +14,8 @@ Städte.
 
 - **Phase 1 — Product specification: COMPLETE** → [`docs/product-spec.md`](docs/product-spec.md)
 - **Phase 2 — Repository & application foundation: COMPLETE** → this repository shape; see [`docs/architecture.md`](docs/architecture.md)
-- **Phase 3+ — Data-build pipeline, API data endpoints, full UI** (roadmap)
+- **Phase 3 — Data-build (foundation): COMPLETE** → snapshot schema + preparation workflow (below); see [`docs/phase-3-report.md`](docs/phase-3-report.md)
+- Later — API data endpoints, full UI
 
 ## Repository layout
 
@@ -26,6 +27,7 @@ backend/         FastAPI read-only backend (FastAPI · Pydantic · DuckDB read_o
   insights/      insight engine (foundation)
   tests/         backend unit tests
 pipeline/        offline data-build (sources/ transforms/ validation/) — Phase 3
+  build_data.py  linear preparation: clean → map ids → normalize → validate → DuckDB
   requirements.txt (Polars · GeoPandas)
 data/            raw | processed | geography | snapshots  (gitignored)
 docs/            product-spec.md · architecture.md · phase reports
@@ -84,6 +86,33 @@ macOS/Linux/CI: the same tasks are exposed via `make …` (see `Makefile`).
 The backend reads an immutable DuckDB snapshot. Until the data-build phase
 produces one, the API starts without a dataset and reports
 `status: "degraded"` / `snapshot.configured: false` on `/api/health`.
+
+## Prepared data (Phase 3)
+
+The snapshot is produced **offline** by a linear Python workflow — no runtime
+data processing:
+
+```bash
+.venv/Scripts/pip install -r pipeline/requirements.txt   # install once
+.venv/Scripts/python pipeline/build_data.py
+```
+
+This reads the raw CSVs in `data/raw/sample/`, cleans them, maps region
+aliases and indicator slugs to canonical ids, normalizes, validates (broken
+region ids, duplicates, non-finite values), and writes the DuckDB snapshot to
+`data/snapshots/bundespulse.duckdb` with four tables:
+
+| Table | Purpose |
+|-------|---------|
+| `regions` | `region_id`, `name`, `type`, `parent_id`, `area` |
+| `indicators` | `indicator_id`, `slug`, `name`, `category`, `unit`, `description`, `raw_or_derived` |
+| `observations` | `region_id`, `indicator_id`, `period`, `value`, `source_id` |
+| `sources` | `source_id`, `provider`, `dataset`, `url`, `retrieval_date` |
+
+After building, `/api/health` reports `snapshot.configured: true` and the
+backend opens the file read-only. The `data/raw/sample/` files are committed so
+the workflow runs out of the box; the produced `.duckdb` is a build artifact
+(gitignored). Set `BUNDESPULSE_SNAPSHOT` to use a different snapshot path.
 
 Point a run at a prepared snapshot with:
 

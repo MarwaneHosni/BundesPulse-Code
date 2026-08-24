@@ -1,0 +1,8 @@
+indicator_id,slug,name,category,unit,description,raw_or_derived
+1,pop_total,Bevölkerung insgesamt,Demography,persons,"Einwohner am Jahresende.",raw
+2,unemp_rate,Arbeitslosenquote,Employment,%,"Arbeitslose in Prozent der zivilen Erwerbspersonen.",raw
+3,gdp_pc,BIP je Einwohner,Economy,EUR,"Bruttoinlandsprodukt je Einwohner.",derived
+4,rent_index,Angebotsmiete (Index),Housing,index 2015=100,"Index der Angebotsmieten.",raw
+5,cars_pc,Pkw je 1 000 Einwohner,Mobility,per 1 000,"Pkw-Bestand je 1 000 Einwohner.",derived
+6,co2_pc,CO2-Emissionen je Einwohner,Environment,t,"Treibhausgasemissionen je Einwohner.",raw
+7,broadband_pct,Breitband-Abdeckung,Infrastructure,%,"Haushalte mit schnellem Breitband.",raw

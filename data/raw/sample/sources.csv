@@ -1,0 +1,6 @@
+source_id,provider,dataset,url,retrieval_date
+1,Destatis / GENESIS,Bevölkerungsstand 12411,https://www-genesis.destatis.de/genesis/online,2026-01-15
+2,Bundesagentur für Arbeit,Arbeitsmarktstatistik,https://statistik.arbeitsagentur.de,2026-01-20
+3,Destatis / GENESIS,Volkswirtschaftliche Gesamtrechnungen,https://www-genesis.destatis.de/genesis/online,2026-02-01
+4,KBA,Fahrzeugbestand,https://www.kba.de,2026-02-10
+5,Umweltbundesamt,CO2-Emissionen,https://www.umweltbundesamt.de,2026-02-12

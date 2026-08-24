@@ -49,6 +49,12 @@ so there was no existing work to preserve or reconcile.
    Kubernetes. Future features (alerts, NL querying, localization, bulk
    export) are listed as deferred, not committed to v1.
 
+10. **Scope guardrails for a personal portfolio project (§1.4)**: v1 is
+    explicitly capped — one simple pipeline (Python scripts → DuckDB → FastAPI
+    → React), 3 geographic levels, ~43 indicators, 7 pages, one immutable
+    snapshot, no accounts/uploads/admin. Over-design rule: a feature ships only
+    if it directly serves one of the seven pages' jobs.
+
 ## 3. Validation performed
 
 - **Read-only architecture is consistent**: audited every page specification

@@ -66,6 +66,31 @@ Concretely, the product delivers:
   territory; the product treats comparison, ranking, and benchmarking as
   first-class features, not add-ons.
 
+### 1.4 Scope guardrails (v1)
+
+This is a **personal portfolio project with a deliberately small surface**, not
+an enterprise platform. The whole architecture is one simple path:
+
+```
+Python data-prep scripts → DuckDB prepared dataset → FastAPI → React frontend
+```
+
+The v1 surface is deliberately capped:
+
+- **1 app** (single-service web app) — no microservices, no message bus, no
+  orchestration (see §14).
+- **3 geographic levels** — Bund, 16 Bundesländer, 401 Landkreise /
+  kreisfreie Städte (§5).
+- **7 curated indicator groups · ≈ 43 indicators** (§6, Appendix A).
+- **7 pages** (§9) — each with exactly one job.
+- **1 prepared, immutable snapshot** as the only data source (§20).
+- **No accounts, no uploads, no storage, no admin.**
+
+The over-design rule: **if a feature does not directly serve one of the seven
+pages' jobs, it is not in v1.** Anything larger is listed as a deferred/roadmap
+item (§15) or a non-goal (§14), so the shipped scope stays buildable and
+reviewable by one developer.
+
 ---
 
 ## 2. Architecture Principles
@@ -263,7 +288,7 @@ The canonical hierarchy has three roll-up levels (plus the whole country):
 ## 6. Supported Domains & Initial Indicator Categories
 
 Seven domains. For v1 the product ships a **curated starter catalog** of
-~40 indicators (concrete, not open-ended) — enough to prove all seven
+~43 indicators (concrete, not open-ended) — enough to prove all seven
 analytical features without overwhelming scope. Each indicator is fully
 specified: domain, name, source provider, observation level, unit, measure
 type, and canonical time depth.

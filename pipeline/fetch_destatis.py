@@ -26,6 +26,8 @@ from pathlib import Path
 
 import openpyxl
 
+from pipeline.source_regions import COUNTRY_ID, LAND_AGS
+
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 
@@ -56,27 +58,6 @@ REPORTS = {
         "file": "12411_bevoelkerung_2024.xlsx",
     },
 }
-
-# Official federal-state (Bundesland) AGS codes used as canonical region ids.
-LAND_AGS = {
-    "Baden-Württemberg": "01",
-    "Bayern": "02",
-    "Berlin": "03",
-    "Brandenburg": "04",
-    "Bremen": "05",
-    "Hamburg": "06",
-    "Hessen": "07",
-    "Mecklenburg-Vorpommern": "08",
-    "Niedersachsen": "09",
-    "Nordrhein-Westfalen": "10",
-    "Rheinland-Pfalz": "11",
-    "Saarland": "12",
-    "Sachsen": "13",
-    "Sachsen-Anhalt": "14",
-    "Schleswig-Holstein": "15",
-    "Thüringen": "16",
-}
-COUNTRY_ID = "DE"
 
 
 class FetchError(RuntimeError):

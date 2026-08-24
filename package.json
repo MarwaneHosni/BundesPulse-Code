@@ -7,6 +7,8 @@
     "apps/web"
   ],
   "scripts": {
+    "data:fetch": "python -m pipeline.fetch_destatis && python -m pipeline.fetch_arbeitsagentur && python -m pipeline.fetch_netzagentur && python -m pipeline.fetch_umweltbundesamt",
+    "data:build": "python -m pipeline.build_data",
     "dev:web": "npm run dev --workspace @bundespulse/web",
     "build:web": "npm run build --workspace @bundespulse/web",
     "test:web": "npm run test --workspace @bundespulse/web",

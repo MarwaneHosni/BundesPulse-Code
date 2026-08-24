@@ -1,16 +1,19 @@
-"""Prepare the BundesPulse DuckDB snapshot from raw CSVs.
+"""Prepare the BundesPulse DuckDB snapshot from staged CSVs.
 
-Linear pipeline:
+The source fetchers (``pipeline/fetch_*.py``) write staging CSVs into
+``data/processed/<source>/``. This build merges them into one snapshot:
 
-    data/raw/sample/*.csv
+    staging dirs (destatis, arbeitsagentur, netzagentur, umweltbundesamt, …)
+      -> load + merge
       -> clean        (trim whitespace, drop empty cells)
       -> map IDs      (aliases -> canonical region_id, indicator slug -> id)
       -> normalize    (types, de-duplicate observations)
       -> validate     (fail on broken region IDs / invalid values)
       -> save to DuckDB  (data/snapshots/bundespulse.duckdb)
 
-Nothing here runs at runtime. This is the offline data-build step; the web app
-only ever reads the resulting snapshot.
+If no staged data exists, the committed ``data/raw/sample/`` set is used so the
+build always runs. Nothing here runs at runtime - this is the offline
+data-build step; the web app only ever reads the resulting snapshot.
 """
 
 from __future__ import annotations
@@ -27,16 +30,12 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-RAW_DIR = Path(
-    os.environ.get(
-        "BUNDESPULSE_RAW_DIR",
-        # Prefer the real Destatis staging data produced by fetch_destatis.py;
-        # fall back to the committed sample so the build always runs.
-        REPO_ROOT / "data" / "processed" / "destatis"
-        if (REPO_ROOT / "data" / "processed" / "destatis" / "regions.csv").exists()
-        else REPO_ROOT / "data" / "raw" / "sample",
-    )
-)
+PROCESSED_DIR = REPO_ROOT / "data" / "processed"
+SAMPLE_DIR = REPO_ROOT / "data" / "raw" / "sample"
+
+# Order matters: earlier dirs win on duplicate region rows.
+STAGE_DIRS = ["destatis", "arbeitsagentur", "netzagentur", "umweltbundesamt"]
+
 SNAPSHOT_PATH = Path(
     os.environ.get(
         "BUNDESPULSE_SNAPSHOT", REPO_ROOT / "data" / "snapshots" / "bundespulse.duckdb"
@@ -45,9 +44,9 @@ SNAPSHOT_PATH = Path(
 
 # Non-canonical ids used by some sources -> canonical region_id in regions.csv.
 REGION_ID_ALIASES = {
-    "DE-BW": "DE1",  # Baden-Württemberg
-    "DE-BY": "DE2",  # Bayern
-    "DEBS": "DE12",  # Stuttgart (Stadtkreis)
+    "DE-BW": "08",  # Baden-Württemberg
+    "DE-BY": "09",  # Bayern
+    "DEBS": "08111",  # Stuttgart (Stadtkreis)
 }
 
 MIN_YEAR, MAX_YEAR = 1990, 2100
@@ -57,16 +56,77 @@ class DataError(Exception):
     """The raw data is unusable; the build must fail."""
 
 
-# ---------------------------------------------------------------- load / clean
+# ---------------------------------------------------------------- load / merge
+
+
+def _stage_dirs() -> list[Path]:
+    dirs = [PROCESSED_DIR / name for name in STAGE_DIRS]
+    if not any((d / "observations.csv").exists() for d in dirs):
+        print(f"no staged data found, using committed sample: {SAMPLE_DIR}")
+        dirs = [SAMPLE_DIR]
+    return dirs
 
 
 def load_raw() -> dict[str, pd.DataFrame]:
-    return {
-        "regions": pd.read_csv(RAW_DIR / "regions.csv", encoding="utf-8"),
-        "indicators": pd.read_csv(RAW_DIR / "indicators.csv", encoding="utf-8"),
-        "observations": pd.read_csv(RAW_DIR / "observations.csv", encoding="utf-8"),
-        "sources": pd.read_csv(RAW_DIR / "sources.csv", encoding="utf-8"),
+    """Load and merge all staging dirs into the four canonical tables.
+
+    Sources are numbered locally by each fetcher, so a per-directory offset is
+    applied to ``source_id`` (in both sources and observations) to keep
+    references consistent in the merged snapshot.
+    """
+    frames: dict[str, list[pd.DataFrame]] = {
+        "regions": [],
+        "indicators": [],
+        "observations": [],
+        "sources": [],
     }
+    offset = 0
+    dtype_map = {
+        "regions.csv": {"region_id": str, "parent_id": str},
+        "observations.csv": {"region_id": str},
+    }
+    for directory in _stage_dirs():
+        files = {
+            "regions": "regions.csv",
+            "indicators": "indicators.csv",
+            "observations": "observations.csv",
+            "sources": "sources.csv",
+        }
+        present = {k: (directory / v).exists() for k, v in files.items()}
+        if not all(present.values()):
+            print(
+                f"  skip {directory.name}: missing {[k for k, ok in present.items() if not ok]}"
+            )
+            continue
+        src = pd.read_csv(directory / files["sources"], encoding="utf-8")
+        obs = pd.read_csv(
+            directory / files["observations"],
+            dtype=dtype_map.get(files["observations"]),
+            encoding="utf-8",
+        )
+        if offset:
+            src["source_id"] = src["source_id"] + offset
+            obs["source_id"] = obs["source_id"] + offset
+        frames["sources"].append(src)
+        frames["observations"].append(obs)
+        frames["regions"].append(
+            pd.read_csv(
+                directory / files["regions"],
+                dtype=dtype_map.get(files["regions"]),
+                encoding="utf-8",
+            )
+        )
+        frames["indicators"].append(
+            pd.read_csv(directory / files["indicators"], encoding="utf-8")
+        )
+        print(
+            f"  merged {directory.name}"
+            + (f" (source offset +{offset})" if offset else "")
+        )
+        offset += 1000
+
+    merged = {table: pd.concat(frames[table], ignore_index=True) for table in frames}
+    return merged
 
 
 def _strip_strings(df: pd.DataFrame) -> pd.DataFrame:
@@ -79,6 +139,11 @@ def clean(raw: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
     cleaned = {
         name: _strip_strings(frame.dropna(how="all")) for name, frame in raw.items()
     }
+    # Keep a single definition per region/indicator (first dir wins).
+    cleaned["regions"] = cleaned["regions"].drop_duplicates(subset=["region_id"])
+    cleaned["indicators"] = cleaned["indicators"].drop_duplicates(
+        subset=["indicator_id"]
+    )
     return cleaned
 
 
@@ -92,22 +157,26 @@ def map_ids(frames: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
         frames["observations"],
     )
 
-    canonical = set(regions["region_id"])
-    slug_to_id = dict(zip(indicators["slug"], indicators["indicator_id"]))
+    canonical = set(regions["region_id"].astype(str))
+    slug_to_id = {
+        str(k): v for k, v in zip(indicators["slug"], indicators["indicator_id"])
+    }
 
     obs = observations.copy()
+    obs["region_id"] = obs["region_id"].astype(str)
     # Map source-level region aliases to canonical ids.
     obs["region_id"] = obs["region_id"].map(lambda rid: REGION_ID_ALIASES.get(rid, rid))
     # Indicators: support either slug column ("indicator") or pre-mapped numeric ids.
     if "indicator" in obs.columns:
         obs["indicator_id"] = obs["indicator"].map(slug_to_id)
         obs = obs.drop(columns=["indicator"])
-    elif not pd.api.types.is_integer_dtype(obs["indicator_id"]):
-        obs["indicator_id"] = obs["indicator_id"].map(slug_to_id)
+    obs["indicator_id"] = obs["indicator_id"].astype(str)
 
     # Anything still missing was not known -> broken reference.
     unknown_regions = sorted(set(obs["region_id"]) - canonical)
-    unknown_indicators = sorted(set(obs["indicator_id"]) - set(slug_to_id.values()))
+    unknown_indicators = sorted(
+        set(obs["indicator_id"]) - {str(v) for v in slug_to_id.values()}
+    )
     if unknown_regions:
         raise DataError(f"Observations reference unknown regions: {unknown_regions}")
     if unknown_indicators:
@@ -308,8 +377,9 @@ def verify(path: Path) -> None:
 
 
 def main() -> None:
-    print(f"source data:  {RAW_DIR}")
     raw = load_raw()
+    for table, df in raw.items():
+        print(f"  {table}: {len(df)} merged rows")
     print("cleaning ...")
     frames = clean(raw)
     print("mapping region/indicator ids ...")

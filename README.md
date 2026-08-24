@@ -87,33 +87,40 @@ The backend reads an immutable DuckDB snapshot. Until the data-build phase
 produces one, the API starts without a dataset and reports
 `status: "degraded"` / `snapshot.configured: false` on `/api/health`.
 
-## Prepared data (Phase 3)
+## Prepared data (Phases 3)
 
-The snapshot is produced **offline** by a linear Python workflow — no runtime
-data processing:
+The snapshot is produced **offline** by the source fetchers and a build step —
+no runtime data processing:
 
 ```bash
-.venv/Scripts/pip install -r pipeline/requirements.txt   # install once
-.venv/Scripts/python pipeline/fetch_destatis.py          # real Destatis data -> staging
-.venv/Scripts/python pipeline/build_data.py              # staging -> DuckDB snapshot
+.venv/Scripts/pip install -r pipeline/requirements.txt      # install once
+.venv/Scripts/python -m pipeline.fetch_destatis             # Demography (Destatis)
+.venv/Scripts/python -m pipeline.fetch_arbeitsagentur       # Employment (BA)
+.venv/Scripts/python -m pipeline.fetch_netzagentur          # Charging (BNetzA)
+.venv/Scripts/python -m pipeline.fetch_umweltbundesamt      # Air quality (UBA)
+.venv/Scripts/python -m pipeline.build_data                 # merge -> DuckDB snapshot
 ```
 
-The workflow reads raw CSVs, cleans them, maps region/indicator ids to
-canonical ids, normalizes, validates (broken region ids, duplicates, non-finite
-values), and writes the DuckDB snapshot to
+Each fetcher downloads official data (Destatis, Bundesagentur für Arbeit,
+Bundesnetzagentur, Umweltbundesamt), cleans and normalizes it, and writes
+staging CSVs under `data/processed/<source>/`. `build_data.py` merges them,
+validates (broken region ids, duplicates, non-finite values), and writes
 `data/snapshots/bundespulse.duckdb` with four tables:
 
 | Table | Purpose |
 |-------|---------|
-| `regions` | `region_id`, `name`, `type`, `parent_id`, `area` |
+| `regions` | `region_id` (official AGS), `name`, `type`, `parent_id`, `area` |
 | `indicators` | `indicator_id`, `slug`, `name`, `category`, `unit`, `description`, `raw_or_derived` |
 | `observations` | `region_id`, `indicator_id`, `period`, `value`, `source_id` |
 | `sources` | `source_id`, `provider`, `dataset`, `url`, `retrieval_date` |
 
-**Current contents (real official Destatis data):** Demography for Deutschland
-+ all 16 Bundesländer — population, official growth rate, and derived age
-shares for 2023 & 2024, plus a 1990–2024 national population series. See
-[`docs/data-sources.md`](docs/data-sources.md) for sources and coverage.
+**Current contents (real official data):** population (+ growth + age shares)
+for Deutschland and all 16 Bundesländer (2023/24, plus a 1990–2024 national
+series); unemployment and unemployment rate for **400 Kreise** (Dec 2025);
+svB employment per Bundesland (Jun 2022); public charging points for **377
+Kreise** and per-10,000-inhabitants for all Bundesländer; UBA air-quality
+stations mapped to regions (NO2/PM10 values pending the UBA API — see
+[`docs/data-sources.md`](docs/data-sources.md)).
 
 After building, `/api/health` reports `snapshot.configured: true` and the
 backend opens the file read-only. The committed `data/raw/sample/` CSVs are a

@@ -92,6 +92,31 @@ raise `DataError`.
   only Deutschland / früheres Bundesgebiet / neue Länder); documented in
   `docs/data-sources.md` as the next integration candidates.
 
+## Addendum 2 (major data domains)
+
+Added three further real, official datasets through the same fetch → stage →
+build path (`build_data.py` now merges four staging dirs; source ids are
+offset per directory; region ids follow the official AGS; Länder ids corrected
+to the official 01–16 ordering):
+
+- **Bundesagentur für Arbeit** (`fetch_arbeitsagentur.py`): Arbeitslose +
+  Arbeitslosenquote for 400 Kreise (Dec 2025, from the BA "Einzelheft"
+  workbook embedded tables) and svB Beschäftigte am Arbeitsort for the 16
+  Bundesländer (Jun 2022, xlsb Gemeindedaten).
+- **Bundesnetzagentur** (`fetch_netzagentur.py`): Ladesaeulenregister CSV →
+  charging points per Kreis (377 of 379 register Kreis names matched via
+  normalised/fuzzy name matching) and **charging points per 10,000 inhabitants
+  per Bundesland**, normalised with the Destatis 2024 population.
+- **Umweltbundesamt** (`fetch_umweltbundesamt.py`): station register →
+  Bundesland mapping integrated (1219 active stations); NO2/PM10 annual values
+  depend on the UBA measures API which was unreachable from this environment
+  (documented; the fetcher retries with a small budget and never fabricates
+  values).
+
+Snapshot now: 417 regions · 11 indicators · 1428 observations · 6 sources.
+Verified: Kreis unemployment (e.g. Gelsenkirchen 15.2%), per-Land employment
+(NRW 7.23M), chargers (Bayern 39 456; 29.94 per 10k), sources recorded.
+
 ## 6. Next steps
 
 - Extend `pipeline/fetch_destatis.py` to further official per-Land datasets

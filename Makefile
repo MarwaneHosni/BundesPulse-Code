@@ -4,7 +4,18 @@
 
 .SHELLFLAGS := -e-c
 
-.PHONY: install install-backend install-web dev dev-api dev-web build build-web test test-api test-web lint lint-api lint-web typecheck-web format-api
+.PHONY: install install-backend install-web dev dev-api dev-web build build-web test test-api test-web lint lint-api lint-web typecheck-web format-api data-fetch data-build
+
+## Fetch + stage all official data sources
+data-fetch:
+	.venv/bin/python -m pipeline.fetch_destatis
+	.venv/bin/python -m pipeline.fetch_arbeitsagentur
+	.venv/bin/python -m pipeline.fetch_netzagentur
+	.venv/bin/python -m pipeline.fetch_umweltbundesamt
+
+## Merge staged data into the DuckDB snapshot
+data-build:
+	.venv/bin/python -m pipeline.build_data
 
 ## Install all toolchain + dependencies
 install: install-backend install-web

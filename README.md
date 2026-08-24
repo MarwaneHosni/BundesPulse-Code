@@ -94,12 +94,13 @@ data processing:
 
 ```bash
 .venv/Scripts/pip install -r pipeline/requirements.txt   # install once
-.venv/Scripts/python pipeline/build_data.py
+.venv/Scripts/python pipeline/fetch_destatis.py          # real Destatis data -> staging
+.venv/Scripts/python pipeline/build_data.py              # staging -> DuckDB snapshot
 ```
 
-This reads the raw CSVs in `data/raw/sample/`, cleans them, maps region
-aliases and indicator slugs to canonical ids, normalizes, validates (broken
-region ids, duplicates, non-finite values), and writes the DuckDB snapshot to
+The workflow reads raw CSVs, cleans them, maps region/indicator ids to
+canonical ids, normalizes, validates (broken region ids, duplicates, non-finite
+values), and writes the DuckDB snapshot to
 `data/snapshots/bundespulse.duckdb` with four tables:
 
 | Table | Purpose |
@@ -109,10 +110,16 @@ region ids, duplicates, non-finite values), and writes the DuckDB snapshot to
 | `observations` | `region_id`, `indicator_id`, `period`, `value`, `source_id` |
 | `sources` | `source_id`, `provider`, `dataset`, `url`, `retrieval_date` |
 
+**Current contents (real official Destatis data):** Demography for Deutschland
++ all 16 Bundesländer — population, official growth rate, and derived age
+shares for 2023 & 2024, plus a 1990–2024 national population series. See
+[`docs/data-sources.md`](docs/data-sources.md) for sources and coverage.
+
 After building, `/api/health` reports `snapshot.configured: true` and the
-backend opens the file read-only. The `data/raw/sample/` files are committed so
-the workflow runs out of the box; the produced `.duckdb` is a build artifact
-(gitignored). Set `BUNDESPULSE_SNAPSHOT` to use a different snapshot path.
+backend opens the file read-only. The committed `data/raw/sample/` CSVs are a
+fallback so the build also runs with the committed sample data; the produced
+`.duckdb` and the downloaded/staged files are build artifacts (gitignored). Set
+`BUNDESPULSE_SNAPSHOT` to use a different snapshot path.
 
 Point a run at a prepared snapshot with:
 

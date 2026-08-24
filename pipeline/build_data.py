@@ -28,7 +28,14 @@ if hasattr(sys.stdout, "reconfigure"):
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 RAW_DIR = Path(
-    os.environ.get("BUNDESPULSE_RAW_DIR", REPO_ROOT / "data" / "raw" / "sample")
+    os.environ.get(
+        "BUNDESPULSE_RAW_DIR",
+        # Prefer the real Destatis staging data produced by fetch_destatis.py;
+        # fall back to the committed sample so the build always runs.
+        REPO_ROOT / "data" / "processed" / "destatis"
+        if (REPO_ROOT / "data" / "processed" / "destatis" / "regions.csv").exists()
+        else REPO_ROOT / "data" / "raw" / "sample",
+    )
 )
 SNAPSHOT_PATH = Path(
     os.environ.get(
@@ -38,9 +45,9 @@ SNAPSHOT_PATH = Path(
 
 # Non-canonical ids used by some sources -> canonical region_id in regions.csv.
 REGION_ID_ALIASES = {
-    "DE-BW": "DE1",   # Baden-Württemberg
-    "DE-BY": "DE2",   # Bayern
-    "DEBS": "DE12",   # Stuttgart (Stadtkreis)
+    "DE-BW": "DE1",  # Baden-Württemberg
+    "DE-BY": "DE2",  # Bayern
+    "DEBS": "DE12",  # Stuttgart (Stadtkreis)
 }
 
 MIN_YEAR, MAX_YEAR = 1990, 2100
@@ -51,6 +58,7 @@ class DataError(Exception):
 
 
 # ---------------------------------------------------------------- load / clean
+
 
 def load_raw() -> dict[str, pd.DataFrame]:
     return {
@@ -68,14 +76,21 @@ def _strip_strings(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def clean(raw: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
-    cleaned = {name: _strip_strings(frame.dropna(how="all")) for name, frame in raw.items()}
+    cleaned = {
+        name: _strip_strings(frame.dropna(how="all")) for name, frame in raw.items()
+    }
     return cleaned
 
 
 # ---------------------------------------------------------------- map ids
 
+
 def map_ids(frames: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
-    regions, indicators, observations = frames["regions"], frames["indicators"], frames["observations"]
+    regions, indicators, observations = (
+        frames["regions"],
+        frames["indicators"],
+        frames["observations"],
+    )
 
     canonical = set(regions["region_id"])
     slug_to_id = dict(zip(indicators["slug"], indicators["indicator_id"]))
@@ -83,9 +98,12 @@ def map_ids(frames: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
     obs = observations.copy()
     # Map source-level region aliases to canonical ids.
     obs["region_id"] = obs["region_id"].map(lambda rid: REGION_ID_ALIASES.get(rid, rid))
-    # Map indicator slugs to numeric ids (observations use the slug column "indicator").
-    obs["indicator_id"] = obs["indicator"].map(slug_to_id)
-    obs = obs.drop(columns=["indicator"])
+    # Indicators: support either slug column ("indicator") or pre-mapped numeric ids.
+    if "indicator" in obs.columns:
+        obs["indicator_id"] = obs["indicator"].map(slug_to_id)
+        obs = obs.drop(columns=["indicator"])
+    elif not pd.api.types.is_integer_dtype(obs["indicator_id"]):
+        obs["indicator_id"] = obs["indicator_id"].map(slug_to_id)
 
     # Anything still missing was not known -> broken reference.
     unknown_regions = sorted(set(obs["region_id"]) - canonical)
@@ -93,13 +111,16 @@ def map_ids(frames: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
     if unknown_regions:
         raise DataError(f"Observations reference unknown regions: {unknown_regions}")
     if unknown_indicators:
-        raise DataError(f"Observations reference unknown indicators: {unknown_indicators}")
+        raise DataError(
+            f"Observations reference unknown indicators: {unknown_indicators}"
+        )
 
     frames["observations"] = obs
     return frames
 
 
 # ---------------------------------------------------------------- normalize
+
 
 def normalize(frames: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
     obs = frames["observations"].copy()
@@ -122,16 +143,21 @@ def normalize(frames: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
         )
 
     before = len(obs)
-    obs = obs.drop_duplicates(subset=["region_id", "indicator_id", "period"]).reset_index(drop=True)
+    obs = obs.drop_duplicates(
+        subset=["region_id", "indicator_id", "period"]
+    ).reset_index(drop=True)
     if len(obs) < before:
         print(f"  dropped {before - len(obs)} duplicate observation row(s)")
 
     # Match the table's column order exactly (independent of CSV column order).
-    frames["observations"] = obs[["region_id", "indicator_id", "period", "value", "source_id"]]
+    frames["observations"] = obs[
+        ["region_id", "indicator_id", "period", "value", "source_id"]
+    ]
     return frames
 
 
 # ---------------------------------------------------------------- validate
+
 
 def validate(frames: dict[str, pd.DataFrame]) -> None:
     regions, indicators, observations, sources = (
@@ -141,27 +167,41 @@ def validate(frames: dict[str, pd.DataFrame]) -> None:
         frames["sources"],
     )
 
-    # Regions.
+    # Regions. area is optional (not every source provides it); reject only
+    # explicitly non-positive values, never "unknown" (NULL).
     if regions["region_id"].duplicated().any():
         raise DataError("regions: duplicate region_id values")
-    bad_areas = regions[regions["area"].apply(lambda a: pd.isna(a) or a <= 0)]
+    bad_areas = regions[regions["area"].notna() & (regions["area"] <= 0)]
     if not bad_areas.empty:
-        raise DataError(f"regions: non-positive or missing area for {list(bad_areas['region_id'])}")
+        raise DataError(
+            f"regions: non-positive area for {list(bad_areas['region_id'])}"
+        )
     ids = set(regions["region_id"])
-    bad_parents = regions[regions["parent_id"].notna() & ~regions["parent_id"].isin(ids)]
+    bad_parents = regions[
+        regions["parent_id"].notna() & ~regions["parent_id"].isin(ids)
+    ]
     if not bad_parents.empty:
-        raise DataError(f"regions: broken parent references {list(bad_parents['parent_id'])}")
+        raise DataError(
+            f"regions: broken parent references {list(bad_parents['parent_id'])}"
+        )
 
     # Indicators.
-    if indicators["indicator_id"].duplicated().any() or indicators["slug"].duplicated().any():
+    if (
+        indicators["indicator_id"].duplicated().any()
+        or indicators["slug"].duplicated().any()
+    ):
         raise DataError("indicators: duplicate indicator_id or slug")
     bad_kind = indicators[~indicators["raw_or_derived"].isin(["raw", "derived"])]
     if not bad_kind.empty:
-        raise DataError(f"indicators: invalid raw_or_derived value(s): {list(bad_kind['raw_or_derived'])}")
+        raise DataError(
+            f"indicators: invalid raw_or_derived value(s): {list(bad_kind['raw_or_derived'])}"
+        )
 
     # Observations: broken references.
     if not observations["region_id"].isin(ids).all():
-        raise DataError(f"observations: unknown regions {sorted(set(observations['region_id']) - ids)}")
+        raise DataError(
+            f"observations: unknown regions {sorted(set(observations['region_id']) - ids)}"
+        )
     ind_ids = set(indicators["indicator_id"])
     if not observations["indicator_id"].isin(ind_ids).all():
         raise DataError("observations: unknown indicator_id values")
@@ -181,7 +221,7 @@ CREATE TABLE regions (
     name       VARCHAR NOT NULL,
     type       VARCHAR NOT NULL,
     parent_id  VARCHAR,
-    area       DOUBLE NOT NULL CHECK (area > 0)
+    area       DOUBLE CHECK (area > 0)
 );
 
 CREATE TABLE indicators (
@@ -265,6 +305,7 @@ def verify(path: Path) -> None:
 
 
 # ---------------------------------------------------------------- entry point
+
 
 def main() -> None:
     print(f"source data:  {RAW_DIR}")

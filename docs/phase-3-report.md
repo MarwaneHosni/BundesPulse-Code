@@ -68,10 +68,35 @@ raise `DataError`.
    behind a duplicate key.
 5. UTF-8 stdout for the script so German umlauts print on any console.
 
+## Addendum (real Destatis data)
+
+**First real data integration — population (GENESIS 12411).**
+
+- New `pipeline/fetch_destatis.py`: downloads the official Destatis
+  *Statistischer Bericht – Bevölkerungsfortschreibung (Zensus 2022)* for report
+  years 2023 and 2024, parses the embedded CSV tables, and stages
+  `regions/indicators/observations/sources` under `data/processed/destatis/`.
+- Canonic regions are now the **real Länder set** (Deutschland + 16
+  Bundesländer, ids `DE` / `01`–`16`).
+- Indicators: `pop_total` (persons), `pop_growth` (official % rate),
+  `pop_share_65plus`, `pop_share_under18` (derived from age groups).
+- Observations: per Land for 2023 & 2024; Deutschland time series 1990–2024.
+- `build_data.py` now prefers the staged Destatis data (committed `data/raw/
+  sample/` remains the fallback), supports pre-mapped numeric `indicator_id`,
+  and treats `area` as optional (real Länder areas are not in this source).
+- Verified queries: by region (Bayern 13 176 426 → 13 248 928), by year (all
+  16 Länder 2024), historical trend (DE 1990–2020 sample), derived share
+  (DE 2024 65+ = 22.74%), and recorded sources.
+- **Coverage note:** regional housing / economy / transport reports require the
+  GENESIS API account or new-format per-Land reports (older workbooks break out
+  only Deutschland / früheres Bundesgebiet / neue Länder); documented in
+  `docs/data-sources.md` as the next integration candidates.
+
 ## 6. Next steps
 
-- Replace sample CSVs with real official source extraction (Destatis/GENESIS,
-  Bundesagentur für Arbeit, …) and expand to the full ~43-indicator catalogue.
+- Extend `pipeline/fetch_destatis.py` to further official per-Land datasets
+  (housing stock/Bautätigkeit, Gewerbeanmeldungen, BIP je Land, Pendler) as
+  new-format reports become available, and expand the indicator catalogue.
 - Add read-only `/api` data endpoints (regions, indicators, observations,
   rankings) over the snapshot.
 - UI phases: wire the seven views to the API (Explore map with MapLibre,

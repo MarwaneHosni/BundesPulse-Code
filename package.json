@@ -1,0 +1,20 @@
+{
+  "name": "bundespulse",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Deutschland Digital Monitor — read-only German regional data intelligence platform (monorepo)",
+  "workspaces": [
+    "apps/web"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev --workspace @bundespulse/web",
+    "build:web": "npm run build --workspace @bundespulse/web",
+    "test:web": "npm run test --workspace @bundespulse/web",
+    "lint:web": "npm run lint --workspace @bundespulse/web",
+    "typecheck:web": "npm run typecheck --workspace @bundespulse/web",
+    "dev:api": "python -m backend.api.main",
+    "test:api": "python -m pytest backend tests -q",
+    "lint:api": "ruff check backend pipeline tests",
+    "format:api": "ruff format backend pipeline tests"
+  }
+}

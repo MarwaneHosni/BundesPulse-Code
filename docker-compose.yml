@@ -1,0 +1,28 @@
+services:
+  api:
+    build:
+      context: ./backend
+    environment:
+      - BUNDESPULSE_SNAPSHOT=/data/snapshots/bundespulse.duckdb
+    volumes:
+      # Mount a prepared snapshot read-only into the container.
+      - ./data/snapshots:/data/snapshots:ro
+    ports:
+      - "8000:8000"
+    # The web app needs the API's full base path removed from API responses.
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build:
+      context: ./apps/web
+      args:
+        # The backend is reachable at /api from the browser via a reverse proxy.
+        VITE_API_BASE_URL: /api
+    depends_on:
+      - api
+    ports:
+      - "8080:80"

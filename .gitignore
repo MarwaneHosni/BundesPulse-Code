@@ -1,0 +1,47 @@
+# ---- Dependencies ----
+node_modules/
+**/node_modules/
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+build/
+dist/
+
+# ---- Data (never commit raw/processed/snapshots) ----
+data/raw/*
+data/processed/*
+data/snapshots/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/snapshots/.gitkeep
+
+# ---- Env / local config ----
+.env
+.env.local
+.env.*.local
+*.local
+
+# ---- Build / editor ----
+dist/
+build/
+coverage/
+*.log
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.tsbuildinfo
+
+# ---- DuckDB runtime files ----
+*.duckdb
+*.duckdb.wal
+*.duckdb.tmp

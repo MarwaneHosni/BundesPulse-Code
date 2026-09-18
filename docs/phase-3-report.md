@@ -161,6 +161,29 @@ Re-ran and verified the remaining major domains end-to-end (real data in DuckDB)
 Re-verified queries by region, by year, and national aggregates; snapshot
 unchanged at 417 regions · 16 indicators · 2612 observations · 9 sources.
 
+## Addendum 5 (production snapshot)
+
+`pipeline/build_data.py` now produces the **final, app-ready snapshot**:
+
+- `data/snapshot/deutschland.duckdb` — base tables (regions, indicators,
+  observations, sources) plus precomputed derived tables:
+  `region_summaries`, `rankings` (rank_desc/rank_asc/percentile per
+  indicator×period×level), `trends` (total & average annual change), `insights`
+  (latest-period yoy, rank, percentile, ratio vs Germany and vs Bundesland),
+  and `snapshot_meta`.
+- `data/snapshot/regions.geojson` — official **BKG VG250** polygons for the 16
+  Bundesländer + 400 Landkreise (WGS84, simplified), each feature carrying
+  region_id/name/type/parent_id/area_km2.
+- `data/snapshot/indicator_metadata.json` — indicator catalog with period range,
+  level availability, and coverage counts for the frontend.
+
+The build downloads the official BKG GeoDatabase on first run (cached under
+`data/raw/geography/`), fills region areas from it, and precomputes the derived
+metrics with the same `backend/analytics/measures.py` functions the API uses
+(rankings/percentiles therefore match runtime queries by construction).
+
+Backend default snapshot path updated to `data/snapshot/deutschland.duckdb`.
+
 ## 6. Next steps
 
 - Extend `pipeline/fetch_destatis.py` to further official per-Land datasets

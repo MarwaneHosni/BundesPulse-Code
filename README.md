@@ -105,8 +105,17 @@ no runtime data processing:
 Each fetcher downloads official data (Destatis, Bundesagentur für Arbeit,
 Bundesnetzagentur, Umweltbundesamt), cleans and normalizes it, and writes
 staging CSVs under `data/processed/<source>/`. `build_data.py` merges them,
-validates (broken region ids, duplicates, non-finite values), and writes
-`data/snapshots/bundespulse.duckdb` with four tables:
+validates (broken region ids, duplicates, non-finite values), precomputes
+derived metrics, and writes the **production snapshot** under `data/snapshot/`:
+
+```
+data/snapshot/
+├── deutschland.duckdb       # base + precomputed tables (read-only)
+├── regions.geojson          # official BKG VG250 polygons (WGS84), Länder + Kreise
+└── indicator_metadata.json  # indicator catalog for the frontend
+```
+
+`deutschland.duckdb` tables:
 
 | Table | Purpose |
 |-------|---------|
@@ -114,6 +123,11 @@ validates (broken region ids, duplicates, non-finite values), and writes
 | `indicators` | `indicator_id`, `slug`, `name`, `category`, `unit`, `description`, `raw_or_derived` |
 | `observations` | `region_id`, `indicator_id`, `period`, `value`, `source_id` |
 | `sources` | `source_id`, `provider`, `dataset`, `url`, `retrieval_date` |
+| `region_summaries` | per region × indicator: periods, first/latest/min/max/mean values |
+| `rankings` | per indicator × period × level: `rank_desc`, `rank_asc`, `percentile` |
+| `trends` | per region × indicator: total and average annual change (%) |
+| `insights` | latest period context: `yoy_pct`, rank, percentile, ratio vs DE and vs Bundesland |
+| `snapshot_meta` | build metadata (name, timestamp, schema version, purpose) |
 
 **Current contents (real official data):** population (+ growth + age shares)
 for Deutschland and all 16 Bundesländer (2023/24, plus a 1990–2024 national
@@ -126,15 +140,15 @@ for all Bundesländer; UBA air-quality stations mapped to regions (NO2/PM10
 values pending the UBA API — see [`docs/data-sources.md`](docs/data-sources.md)).
 
 After building, `/api/health` reports `snapshot.configured: true` and the
-backend opens the file read-only. The committed `data/raw/sample/` CSVs are a
-fallback so the build also runs with the committed sample data; the produced
-`.duckdb` and the downloaded/staged files are build artifacts (gitignored). Set
-`BUNDESPULSE_SNAPSHOT` to use a different snapshot path.
+backend opens `data/snapshot/deutschland.duckdb` read-only. The committed
+`data/raw/sample/` CSVs are a fallback so the build also runs with the
+committed sample data; all files under `data/snapshot/` are build artifacts
+(gitignored). Set `BUNDESPULSE_SNAPSHOT` to use a different snapshot path.
 
 Point a run at a prepared snapshot with:
 
 ```bash
-export BUNDESPULSE_SNAPSHOT=data/snapshots/bundespulse.duckdb   # or set in env
+export BUNDESPULSE_SNAPSHOT=data/snapshot/deutschland.duckdb   # or set in env
 ```
 
 ## Running with Docker

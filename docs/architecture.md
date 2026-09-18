@@ -1,7 +1,7 @@
-# BundesPulse — Repository & Application Architecture
+# BundesPulse  ERepository & Application Architecture
 
-**Phase:** 2 — repository and application foundation.
-**Model:** immutable/precomputed-data → read-only API → read-only web app.
+**Phase:** 2  Erepository and application foundation.
+**Model:** immutable/precomputed-data ↁEread-only API ↁEread-only web app.
 
 ---
 
@@ -10,9 +10,9 @@
 The product is split into two conceptual systems that are deliberately kept
 apart:
 
-1. **Offline data preparation** (`pipeline/`, Phase 3) — takes government data
+1. **Offline data preparation** (`pipeline/`, Phase 3)  Etakes government data
    and produces a prepared, immutable snapshot.
-2. **Production application** (`backend/` + `apps/web`) — a read-only FastAPI
+2. **Production application** (`backend/` + `apps/web`)  Ea read-only FastAPI
    service and a read-only React frontend over that snapshot.
 
 The production application **never** ingests external APIs, never writes data,
@@ -20,16 +20,15 @@ and has no authentication.
 
 ```
    official sources (Destatis, BA, BKG, UBA, BNetzA, GovData)
-        │  [offline]
+        ━E [offline]
         ▼
-   pipeline/  (extract → transform → validate)      [Phase 3]
-        │
-        ▼
-   data/snapshots/bundespulse.duckdb   (immutable, versioned snapshot)
-        │  [read-only]
+   pipeline/  (extract ↁEtransform ↁEvalidate)      [Phase 3]
+        ━E        ▼
+   data/snapshot/deutschland.duckdb   (immutable, versioned snapshot)
+        ━E [read-only]
         ▼
    backend/  FastAPI (DuckDB read_only)             [this phase]
-        │  GET /api/*
+        ━E GET /api/*
         ▼
    apps/web  React + Vite (proxy /api in dev)       [this phase]
 ```
@@ -39,21 +38,21 @@ and has no authentication.
 ```
 BundesPulse/
 ├── apps/
-│   └── web/                  React frontend (Vite, TS, Tailwind, ECharts, MapLibre GL)
-├── backend/                  FastAPI backend — also the `backend` Python package
-│   ├── api/                  REST routes + Pydantic schemas
-│   ├── analytics/            analytical computations (foundation; Phase 3+)
-│   ├── insights/             insight engine (foundation; Phase 3+)
-│   └── tests/                backend unit tests
+━E  └── web/                  React frontend (Vite, TS, Tailwind, ECharts, MapLibre GL)
+├── backend/                  FastAPI backend  Ealso the `backend` Python package
+━E  ├── api/                  REST routes + Pydantic schemas
+━E  ├── analytics/            analytical computations (foundation; Phase 3+)
+━E  ├── insights/             insight engine (foundation; Phase 3+)
+━E  └── tests/                backend unit tests
 ├── pipeline/                 offline data-build (build_data.py + stage scaffolds)
-│   ├── sources/
-│   ├── transforms/
-│   └── validation/
+━E  ├── sources/
+━E  ├── transforms/
+━E  └── validation/
 ├── data/                     never committed; gitignored except .gitkeep
-│   ├── raw/                  source extractions
-│   ├── processed/            cleaned/normalized intermediates
-│   ├── geography/            boundaries / vector tiles
-│   └── snapshots/            immutable DuckDB snapshots
+━E  ├── raw/                  source extractions
+━E  ├── processed/            cleaned/normalized intermediates
+━E  ├── geography/            boundaries / vector tiles
+━E  └── snapshot/             production snapshot: deutschland.duckdb, regions.geojson, indicator metadata
 ├── docs/                     specs and reports
 ├── tests/                    cross-cutting / integration tests (later)
 ├── docker-compose.yml        optional containerised stack
@@ -68,17 +67,17 @@ BundesPulse/
   `backend/pyproject.toml`). This keeps module paths like `backend.api.main`
   stable and lets the service run uninstalled from the repo root.
 * The backend is a **read-only FastAPI** application:
-  * `backend/api/main.py` — `create_app()` app factory + `app` instance.
-  * `backend/api/health.py` — `GET /api/health`.
-  * `backend/api/schemas.py` — Pydantic response models.
-  * `backend/config.py` — `Settings` (snapshot path from
-    `BUNDESPULSE_SNAPSHOT`; defaults to `data/snapshots/bundespulse.duckdb`).
-  * `backend/analytics/measures.py` — core analytical measures (percentage
+  * `backend/api/main.py`  E`create_app()` app factory + `app` instance.
+  * `backend/api/health.py`  E`GET /api/health`.
+  * `backend/api/schemas.py`  EPydantic response models.
+  * `backend/config.py`  E`Settings` (snapshot path from
+    `BUNDESPULSE_SNAPSHOT`; defaults to `data/snapshot/deutschland.duckdb`).
+  * `backend/analytics/measures.py`  Ecore analytical measures (percentage
     change, year-over-year change, region-vs-benchmark comparisons, ranking,
     percentiles, per-capita/per-10,000 normalisation, Pearson/Spearman
     correlation, z-score anomaly detection). Pure functions that handle
     missing values, zero denominators and insufficient data.
-  * `backend/db.py` — single lazy DuckDB connection, opened with
+  * `backend/db.py`  Esingle lazy DuckDB connection, opened with
     `read_only=True`. Writes are refused by DuckDB itself.
 * If no snapshot exists yet, the health endpoint reports an honest
   `configured: false` / `status: degraded` state. Data routes arrive in a
@@ -86,8 +85,7 @@ BundesPulse/
 
 ### Snapshot schema
 
-Produced offline by `pipeline/build_data.py` (linear: clean → map ids →
-normalize → validate → write). Four tables:
+Produced offline by `pipeline/build_data.py` (linear: clean ↁEmap ids ↁEnormalize ↁEvalidate ↁEwrite). Four tables:
 
 * `regions(region_id, name, type, parent_id, area)`
 * `indicators(indicator_id, slug, name, category, unit, description, raw_or_derived)`
@@ -106,18 +104,18 @@ snapshot.
 
 ## 4. Web frontend
 
-* `apps/web` — React 18 + TypeScript, built with Vite.
+* `apps/web`  EReact 18 + TypeScript, built with Vite.
 * Styling: Tailwind CSS with shadcn/ui-style components (`src/components/ui/`).
 * Charts: Apache ECharts (modular imports). MapLibre GL is a declared
   dependency ready for the Explore map (later phase).
 * Server state: TanStack Query (`QueryClient` in `src/App.tsx`; health fetched
   via `src/lib/queries.ts`).
-* API client: `src/lib/api.ts` — GET-only, base from `VITE_API_BASE_URL`
-  (default `/api`). In dev, Vite proxies `/api` → `http://localhost:8000`.
+* API client: `src/lib/api.ts`  EGET-only, base from `VITE_API_BASE_URL`
+  (default `/api`). In dev, Vite proxies `/api` ↁE`http://localhost:8000`.
 * Routing: React Router v7; `BrowserRouter` lives in `src/main.tsx` so `App`
   is router-agnostic (and testable under `MemoryRouter`).
 * Views are honest scaffolding (`src/pages/*`) declaring their
-  product-spec responsibility — no fake feature implementations.
+  product-spec responsibility  Eno fake feature implementations.
 
 ## 5. Conventions
 
@@ -154,28 +152,27 @@ Canonical commands (PowerShell/macOS zsh compatible):
 
 * None required to run. Templates in `.env.example` /
   `backend/.env.example` / `apps/web/.env.example`.
-* `BUNDESPULSE_SNAPSHOT` — path to the snapshot (relative to repo root or
+* `BUNDESPULSE_SNAPSHOT`  Epath to the snapshot (relative to repo root or
   absolute).
-* `VITE_API_BASE_URL` — API base the web client calls (default `/api`).
-* `VITE_API_PROXY_TARGET` — dev proxy target (default `http://localhost:8000`).
+* `VITE_API_BASE_URL`  EAPI base the web client calls (default `/api`).
+* `VITE_API_PROXY_TARGET`  Edev proxy target (default `http://localhost:8000`).
 
 ## 8. Testing strategy
 
-* `backend/tests/` — pytest (FastAPI `TestClient`), runs with
+* `backend/tests/`  Epytest (FastAPI `TestClient`), runs with
   `python -m pytest backend/tests -q`.
-* `apps/web/src/**/*.test.{ts,tsx}` — Vitest + Testing Library
+* `apps/web/src/**/*.test.{ts,tsx}`  EVitest + Testing Library
   (`npm run test:web`).
-* `tests/` (repo root) — reserved for cross-component integration later.
+* `tests/` (repo root)  Ereserved for cross-component integration later.
 * CI wiring (GitHub Actions) is a follow-up; the `Makefile` already expresses
   the pipeline.
 
 ## 9. What this phase deliberately does NOT provide
 
-* Data endpoints/domain models (spec §8) — the snapshot schema now exists
+* Data endpoints/domain models (spec §8)  Ethe snapshot schema now exists
   (see "Snapshot schema" above); read-only `/api` data routes come next.
-* Official-source extraction and the full indicator catalogue —
-  `build_data.py` establishes the workflow on committed sample data.
-* Docker image builds — `docker-compose.yml` + Dockerfiles are written and
+* Official-source extraction and the full indicator catalogue  E  `build_data.py` establishes the workflow on committed sample data.
+* Docker image builds  E`docker-compose.yml` + Dockerfiles are written and
   `docker compose config` validates, but builds are parked until the stack is
   exercised (see README "Running with Docker").
 * UI features beyond the application shell.

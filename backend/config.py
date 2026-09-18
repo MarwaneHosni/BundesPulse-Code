@@ -32,7 +32,7 @@ class Settings:
         if env_snapshot:
             self.snapshot_path: Path | None = Path(env_snapshot).expanduser().resolve()
         else:
-            default = REPO_ROOT / "data" / "snapshots" / "bundespulse.duckdb"
+            default = REPO_ROOT / "data" / "snapshot" / "deutschland.duckdb"
             self.snapshot_path: Path | None = default if default.exists() else None
 
         self.app_name = "bundespulse-api"

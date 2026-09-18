@@ -62,9 +62,31 @@ npm run dev:web   # terminal 1
 npm run dev:api   # terminal 2
 ```
 
-Open http://localhost:5173 — the home page shows the app name, the seven
-domains, and a small ECharts placeholder diagram; the header shows the live
-backend connection status.
+Open http://localhost:5173 — the home page shows live data fetched from the
+backend (regions, indicators, rankings from the prepared snapshot); the header
+shows the backend connection status.
+
+## Read-only API
+
+`npm run dev:api` serves FastAPI at http://localhost:8000 (docs at `/docs`).
+All endpoints are GET-only and read the prepared snapshot:
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /api/health` | service + snapshot status |
+| `GET /api/regions` | regions (optional `?level=bundesland\|kreis`) |
+| `GET /api/regions/{id}` | single region (e.g. `09`) |
+| `GET /api/indicators` | indicator catalog with periods/levels/coverage |
+| `GET /api/regions/{id}/profile` | region + KPI insights + trends |
+| `GET /api/regions/{id}/insights` | latest-period insights for a region |
+| `GET /api/regions/{id}/indicators/{slug}` | time series with change measures |
+| `GET /api/compare?regions=09,08&indicator=gdp_pc` | compare 1-4 regions |
+| `GET /api/rankings?indicator=unemp_rate&level=kreis&order=asc` | rankings (rank_desc/asc, percentile) |
+| `GET /api/correlation?x=pop_growth&y=gdp_pc` | Pearson + Spearman (association only) |
+| `GET /api/sources` | data sources |
+| `GET /api/metadata` | snapshot meta + indicators + sources |
+
+Unknown regions/indicators return `404`; a missing snapshot returns `503`.
 
 ## Development commands
 

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from fastapi import FastAPI
 
+from backend.api.data import router as data_router
 from backend.api.health import router as health_router
 from backend.config import settings
 
@@ -25,6 +26,7 @@ def create_app() -> FastAPI:
         version=settings.api_version,
     )
     app.include_router(health_router, prefix="/api")
+    app.include_router(data_router, prefix="/api")
     return app
 
 

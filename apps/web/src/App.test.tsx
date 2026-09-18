@@ -21,11 +21,12 @@ function renderApp(initialPath = "/") {
 }
 
 describe("App shell", () => {
-  it("renders the homepage shell with the seven domains", () => {
+  it("renders the homepage shell with live-data sections", () => {
     renderApp("/")
     expect(screen.getByRole("heading", { name: /Deutschland Digital Monitor/i })).toBeInTheDocument()
-    expect(screen.getByText("Demography")).toBeInTheDocument()
-    expect(screen.getByText("Infrastructure")).toBeInTheDocument()
+    expect(screen.getByText("Regionen")).toBeInTheDocument()
+    expect(screen.getByText("Indikatoren (real)")).toBeInTheDocument()
+    expect(screen.getByText("Quellen")).toBeInTheDocument()
   })
 
   it("navigates to the Explore view via the header", async () => {

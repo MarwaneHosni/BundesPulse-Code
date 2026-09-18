@@ -184,6 +184,29 @@ metrics with the same `backend/analytics/measures.py` functions the API uses
 
 Backend default snapshot path updated to `data/snapshot/deutschland.duckdb`.
 
+## Addendum 6 (read-only API + frontend)
+
+Implemented the small read-only FastAPI over the prepared snapshot
+(`backend/api/data.py`) with Pydantic models (`backend/api/schemas.py`):
+
+- `GET /api/regions`, `/api/regions/{id}`, `/api/indicators`
+- `GET /api/regions/{id}/profile`, `/api/regions/{id}/insights`,
+  `/api/regions/{id}/indicators/{slug}` (time series with change measures)
+- `GET /api/compare`, `/api/rankings`, `/api/correlation`
+  (Pearson + Spearman; "correlation is not causation")
+- `GET /api/sources`, `/api/metadata`
+
+All endpoints are GET-only SELECTs against the snapshot; unknown
+regions/indicators → 404, missing snapshot → 503. Change/trend/rank values are
+computed/read from the precomputed tables (consistent with
+`backend/analytics/measures`). Verified end-to-end with 13 new API tests and a
+live server + Vite proxy check.
+
+Frontend: `lib/api.ts` typed client for all endpoints, TanStack Query hooks,
+home page now renders real data (region counts, indicator catalog, ranking
+teaser) and the Region Profile page shows Bayern KPIs and the GDP-per-capita
+series from the API.
+
 ## 6. Next steps
 
 - Extend `pipeline/fetch_destatis.py` to further official per-Land datasets

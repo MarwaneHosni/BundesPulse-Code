@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils"
 
 const NAV_ITEMS: { label: string; to: string }[] = [
   { label: "Explore", to: "/explore" },
-  { label: "Region", to: "/region/DE1" },
+  { label: "Region", to: "/region/09" },
   { label: "Compare", to: "/compare" },
   { label: "Rankings", to: "/rankings" },
   { label: "Data Explorer", to: "/explorer" },

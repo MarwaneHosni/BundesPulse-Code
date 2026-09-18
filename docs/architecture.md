@@ -69,6 +69,10 @@ BundesPulse/
 * The backend is a **read-only FastAPI** application:
   * `backend/api/main.py`  E`create_app()` app factory + `app` instance.
   * `backend/api/health.py`  E`GET /api/health`.
+  * `backend/api/data.py` – read-only data endpoints over the
+    snapshot (`/regions`, `/indicators`, `/regions/{id}/profile`, `/compare`,
+    `/rankings`, `/correlation`, `/insights`, `/sources`, `/metadata`), with
+    404 on unknown regions/indicators and 503 without a snapshot.
   * `backend/api/schemas.py`  EPydantic response models.
   * `backend/config.py`  E`Settings` (snapshot path from
     `BUNDESPULSE_SNAPSHOT`; defaults to `data/snapshot/deutschland.duckdb`).
@@ -80,8 +84,7 @@ BundesPulse/
   * `backend/db.py`  Esingle lazy DuckDB connection, opened with
     `read_only=True`. Writes are refused by DuckDB itself.
 * If no snapshot exists yet, the health endpoint reports an honest
-  `configured: false` / `status: degraded` state. Data routes arrive in a
-  later phase once the snapshot schema is defined.
+  `configured: false` / `status: degraded` state, and data routes return 503.
 
 ### Snapshot schema
 

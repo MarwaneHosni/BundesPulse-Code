@@ -207,6 +207,35 @@ home page now renders real data (region counts, indicator catalog, ranking
 teaser) and the Region Profile page shows Bayern KPIs and the GDP-per-capita
 series from the API.
 
+## Addendum 7 (visual frontend)
+
+Built the main visual frontend over the real API (React/TS/Tailwind, ECharts,
+MapLibre):
+
+- **Layout & navigation**: 5 primary sections (Explore, Compare, Rankings,
+  Data, Relationships) + subtle Methodik/Quellen link; footer navigation;
+  restrained header with live API status.
+- **Reusable components**: `PageHeader`, filter primitives (Select, Segmented,
+  FilterBar), `Kpi`, `EChart` (modular ECharts wrapper), `DataTable`,
+  `SourceNote`, and Loading/Empty/Error states.
+- **Pages (all real data, no fakes)**:
+  - Explore – MapLibre choropleth over official BKG boundaries
+    (`/api/regions.geojson`) coloured by an indicator (interactive legend,
+    hover popup, click → region profile) with indicator/level/period filters.
+  - Compare – synchronized multi-region line chart + latest-stand table.
+  - Rankings – ranked table (rank/percentile) + top-N bar chart with filters.
+  - Data – indicator × level × year table of all regions + overview chart.
+  - Relationships – scatter cloud + Pearson/Spearman KPIs with the
+    "correlation is not causation" note.
+  - Methodology – snapshot meta + sources register.
+- **Backend additions**: `GET /api/regions.geojson`,
+  `GET /api/indicators/{slug}/periods`, and correlation `points`.
+- Visual direction: whitespace, restrained colours, clear numerical hierarchy
+  (tabular figures), thin rules instead of heavy cards.
+
+All seven routes return 200 through the Vite proxy with the API running; 34
+backed tests + 4 frontend tests pass.
+
 ## 6. Next steps
 
 - Extend `pipeline/fetch_destatis.py` to further official per-Land datasets

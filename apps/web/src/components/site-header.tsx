@@ -4,12 +4,10 @@ import { cn } from "@/lib/utils"
 
 const NAV_ITEMS: { label: string; to: string }[] = [
   { label: "Explore", to: "/explore" },
-  { label: "Region", to: "/region/09" },
   { label: "Compare", to: "/compare" },
   { label: "Rankings", to: "/rankings" },
-  { label: "Data Explorer", to: "/explorer" },
+  { label: "Data", to: "/explorer" },
   { label: "Relationships", to: "/relationships" },
-  { label: "Methodology", to: "/methodology" },
 ]
 
 export function SiteHeader() {
@@ -20,16 +18,22 @@ export function SiteHeader() {
           <span className="text-primary">▮</span>
           BundesPulse
         </a>
-        <nav className="hidden gap-1 md:flex" aria-label="Hauptnavigation">
+        <nav className="flex gap-1 overflow-x-auto" aria-label="Hauptnavigation">
           {NAV_ITEMS.map((item) => (
             <Link
               key={item.to}
               to={item.to}
-              className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+              className="whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
             >
               {item.label}
             </Link>
           ))}
+          <Link
+            to="/methodology"
+            className="whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium text-muted-foreground/60 transition-colors hover:bg-accent hover:text-accent-foreground"
+          >
+            Methodik & Quellen
+          </Link>
         </nav>
         <div className="ml-auto flex items-center gap-2">
           <BackendStatus />

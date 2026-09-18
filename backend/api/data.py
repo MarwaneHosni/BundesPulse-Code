@@ -9,15 +9,18 @@ Invalid region/indicator requests return 404; a missing snapshot returns 503.
 from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException, Query
+from fastapi.responses import FileResponse
 
 from backend.analytics.measures import absolute_change, correlation, percentage_change
 from backend.api.schemas import (
     CompareRegion,
     CompareResponse,
+    CorrelationPoint,
     CorrelationResponse,
     Indicator,
     Insight,
     MetadataResponse,
+    PeriodsResponse,
     RankingRow,
     RankingsResponse,
     Region,
@@ -27,7 +30,7 @@ from backend.api.schemas import (
     Source,
     TrendItem,
 )
-from backend.config import settings
+from backend.config import REPO_ROOT, settings
 from backend.db import SnapshotUnavailableError, get_connection
 
 router = APIRouter(tags=["data"])
@@ -364,6 +367,14 @@ def get_correlation(
     common = [(xv[r], yv[r]) for r in xv if r in yv]
     xs = [p[0] for p in common]
     ys = [p[1] for p in common]
+    names = {
+        str(r["region_id"]): str(r["name"])
+        for r in _fetch(conn, "SELECT region_id, name FROM regions")
+    }
+    points = [
+        CorrelationPoint(region_id=rid, name=names.get(rid, rid), value_x=xv[rid], value_y=yv[rid])
+        for rid in sorted(xv.keys() & yv.keys())
+    ]
     return CorrelationResponse(
         x=x,
         y=y,
@@ -372,7 +383,38 @@ def get_correlation(
         n=len(xs),
         pearson=correlation(xs, ys, method="pearson")["coefficient"],
         spearman=correlation(xs, ys, method="spearman")["coefficient"],
+        points=points,
     )
+
+
+@router.get("/indicators/{slug}/periods", response_model=PeriodsResponse)
+def indicator_periods(
+    slug: str,
+    level: str = Query(default="bundesland", description="bundesland | kreis"),
+) -> PeriodsResponse:
+    conn = _conn()
+    _indicator_row(conn, slug)
+    if level not in ("bundesland", "kreis", "bund"):
+        raise HTTPException(status_code=400, detail=f"invalid level: {level}")
+    rows = _fetch(
+        conn,
+        "SELECT DISTINCT period FROM rankings "
+        "WHERE indicator_id = ? AND level = ? ORDER BY period DESC",
+        [_indicator_row(conn, slug)["indicator_id"], level],
+    )
+    return PeriodsResponse(indicator=slug, level=level, periods=[int(r["period"]) for r in rows])
+
+
+@router.get("/regions.geojson")
+def regions_geojson():
+    """Serve the official BKG region boundaries (EPSG:4326) for the map."""
+    path = REPO_ROOT / "data" / "snapshot" / "regions.geojson"
+    if not path.exists():
+        raise HTTPException(
+            status_code=404,
+            detail="regions.geojson not found. Build it with: python -m pipeline.build_data",
+        )
+    return FileResponse(str(path), media_type="application/geo+json", filename="regions.geojson")
 
 
 # ---------------------------------------------------------------- sources / metadata

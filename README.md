@@ -82,7 +82,9 @@ All endpoints are GET-only and read the prepared snapshot:
 | `GET /api/regions/{id}/indicators/{slug}` | time series with change measures |
 | `GET /api/compare?regions=09,08&indicator=gdp_pc` | compare 1-4 regions |
 | `GET /api/rankings?indicator=unemp_rate&level=kreis&order=asc` | rankings (rank_desc/asc, percentile) |
-| `GET /api/correlation?x=pop_growth&y=gdp_pc` | Pearson + Spearman (association only) |
+| `GET /api/correlation?x=pop_growth&y=gdp_pc` | Pearson + Spearman + point cloud (association only) |
+| `GET /api/indicators/{slug}/periods?level=…` | available years for an indicator/level |
+| `GET /api/regions.geojson` | official BKG boundaries (WGS84) for the map |
 | `GET /api/sources` | data sources |
 | `GET /api/metadata` | snapshot meta + indicators + sources |
 

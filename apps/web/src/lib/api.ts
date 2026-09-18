@@ -131,6 +131,13 @@ export interface RankingsResponse {
   entries: RankingRow[]
 }
 
+export interface CorrelationPoint {
+  region_id: string
+  name: string
+  value_x: number | null
+  value_y: number | null
+}
+
 export interface CorrelationResponse {
   x: string
   y: string
@@ -139,7 +146,38 @@ export interface CorrelationResponse {
   n: number
   pearson: number | null
   spearman: number | null
+  points: CorrelationPoint[]
   note: string
+}
+
+export interface PeriodsResponse {
+  indicator: string
+  level: string
+  periods: number[]
+}
+
+export interface GeoJsonGeometry {
+  type: string
+  coordinates: unknown
+}
+
+export interface GeoJsonFeature {
+  type: "Feature"
+  properties: {
+    region_id: string
+    name: string
+    type: string
+    parent_id: string | null
+    area_km2: number
+  } & Record<string, unknown>
+  geometry: GeoJsonGeometry | null
+}
+
+export interface RegionGeoJson {
+  type: "FeatureCollection"
+  name: string
+  crs?: { type: string; properties: { name: string } }
+  features: GeoJsonFeature[]
 }
 
 export interface MetadataResponse {
@@ -215,6 +253,16 @@ export async function fetchCorrelation(
   opts: { level?: string; period?: number } = {},
 ): Promise<CorrelationResponse> {
   return getJson<CorrelationResponse>(`/correlation${qs({ x, y, ...opts })}`)
+}
+
+export async function fetchIndicatorPeriods(slug: string, level: string): Promise<PeriodsResponse> {
+  return getJson<PeriodsResponse>(`/indicators/${slug}/periods${qs({ level })}`)
+}
+
+export async function fetchRegionGeoJson(): Promise<RegionGeoJson> {
+  const res = await fetch(`${API_BASE}/regions.geojson`, { headers: { Accept: "application/geo+json" } })
+  if (!res.ok) throw new Error(`API ${res.status}: regions.geojson`)
+  return res.json() as Promise<RegionGeoJson>
 }
 
 export async function fetchSources(): Promise<Source[]> {

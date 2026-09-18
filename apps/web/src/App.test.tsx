@@ -32,7 +32,8 @@ describe("App shell", () => {
   it("navigates to the Explore view via the header", async () => {
     const user = userEvent.setup()
     renderApp("/")
-    await user.click(screen.getByRole("link", { name: "Explore" }))
+    const exploreLinks = screen.getAllByRole("link", { name: "Explore" })
+    await user.click(exploreLinks[0])
     expect(screen.getByRole("heading", { name: "Explore" })).toBeInTheDocument()
   })
 

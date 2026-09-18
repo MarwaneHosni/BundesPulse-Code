@@ -120,6 +120,33 @@ def test_correlation(client: TestClient) -> None:
     assert client.get("/api/correlation?x=nope&y=gdp_pc").status_code == 404
 
 
+def test_indicator_periods(client: TestClient) -> None:
+    resp = client.get("/api/indicators/gdp_pc/periods?level=bundesland")
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["indicator"] == "gdp_pc"
+    assert body["level"] == "bundesland"
+    assert body["periods"] == sorted(body["periods"], reverse=True)
+    assert 2024 in body["periods"]
+    assert client.get("/api/indicators/nope/periods").status_code == 404
+    assert client.get("/api/indicators/gdp_pc/periods?level=zzz").status_code == 400
+
+
+def test_regions_geojson(client: TestClient) -> None:
+    resp = client.get("/api/regions.geojson")
+    assert resp.status_code == 200
+    assert resp.headers["content-type"].startswith("application/geo+json")
+    body = resp.json()
+    assert body["type"] == "FeatureCollection"
+    assert len(body["features"]) >= 400
+
+
+def test_correlation_includes_points(client: TestClient) -> None:
+    body = client.get("/api/correlation?x=pop_growth&y=gdp_pc&level=bundesland").json()
+    assert len(body["points"]) == body["n"]
+    assert {"region_id", "name", "value_x", "value_y"} <= set(body["points"][0])
+
+
 def test_sources_and_metadata(client: TestClient) -> None:
     sources = client.get("/api/sources").json()
     assert isinstance(sources, list) and len(sources) >= 6

@@ -153,6 +153,13 @@ class RankingsResponse(BaseModel):
 # ---------------------------------------------------------------- correlation
 
 
+class CorrelationPoint(BaseModel):
+    region_id: str
+    name: str
+    value_x: float | None = None
+    value_y: float | None = None
+
+
 class CorrelationResponse(BaseModel):
     x: str
     y: str
@@ -161,7 +168,17 @@ class CorrelationResponse(BaseModel):
     n: int
     pearson: float | None = None
     spearman: float | None = None
+    points: list[CorrelationPoint] = []
     note: str = "Correlation is not causation."
+
+
+# ---------------------------------------------------------------- indicator periods
+
+
+class PeriodsResponse(BaseModel):
+    indicator: str
+    level: str
+    periods: list[int]
 
 
 # ---------------------------------------------------------------- metadata

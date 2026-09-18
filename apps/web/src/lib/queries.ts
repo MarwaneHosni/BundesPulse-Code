@@ -4,9 +4,11 @@ import {
   fetchCorrelation,
   fetchHealth,
   fetchIndicators,
+  fetchIndicatorPeriods,
   fetchMetadata,
   fetchRankings,
   fetchRegion,
+  fetchRegionGeoJson,
   fetchRegionInsights,
   fetchRegionProfile,
   fetchRegionSeries,
@@ -18,8 +20,10 @@ import {
   type Indicator,
   type Insight,
   type MetadataResponse,
+  type PeriodsResponse,
   type RankingsResponse,
   type Region,
+  type RegionGeoJson,
   type RegionIndicatorSeries,
   type RegionProfile,
   type Source,
@@ -100,10 +104,16 @@ export function useCompare(regions: string[], indicator: string) {
 
 export function useRankings(
   indicator: string,
-  opts: { level?: string; order?: string; limit?: number } = {},
+  opts: { level?: string; order?: string; limit?: number; period?: number } = {},
 ) {
   return useQuery<RankingsResponse>({
-    queryKey: ["rankings", indicator, opts.level ?? "bundesland", opts.order ?? "desc"],
+    queryKey: [
+      "rankings",
+      indicator,
+      opts.level ?? "bundesland",
+      opts.order ?? "desc",
+      opts.period ?? "latest",
+    ],
     queryFn: () => fetchRankings(indicator, opts),
   })
 }
@@ -116,5 +126,21 @@ export function useCorrelation(
   return useQuery<CorrelationResponse>({
     queryKey: ["correlation", x, y, opts.level ?? "bundesland"],
     queryFn: () => fetchCorrelation(x, y, opts),
+  })
+}
+
+export function useIndicatorPeriods(slug: string, level: string) {
+  return useQuery<PeriodsResponse>({
+    queryKey: ["periods", slug, level],
+    queryFn: () => fetchIndicatorPeriods(slug, level),
+    enabled: slug.length > 0,
+  })
+}
+
+export function useRegionGeoJson() {
+  return useQuery<RegionGeoJson>({
+    queryKey: ["regions.geojson"],
+    queryFn: fetchRegionGeoJson,
+    staleTime: Infinity,
   })
 }

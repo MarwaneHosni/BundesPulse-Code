@@ -6,7 +6,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { DomainsChart } from "@/components/domains-chart"
+import { PageHeader } from "@/components/page-header"
+import { Kpi } from "@/components/kpi"
 import { useIndicators, useMetadata, useRankings, useRegions } from "@/lib/queries"
 
 function fmt(n: number | null | undefined): string {
@@ -20,85 +21,44 @@ export function HomePage() {
   const meta = useMetadata()
   const ranking = useRankings("unemp_rate", { level: "kreis", order: "asc", limit: 5 })
 
-  const laender = regions.data?.filter((r) => r.type === "bundesland").length ?? 0
-  const kreise = regions.data?.filter((r) => r.type === "kreis").length ?? 0
-
   return (
     <div className="container py-10">
-      <div className="max-w-3xl">
-        <h1 className="text-4xl font-semibold tracking-tight">
-          Deutschland Digital Monitor
-        </h1>
-        <p className="mt-3 text-lg text-muted-foreground">
-          Offene Regionaldaten für Deutschland: Bund, Bundesländer und
-          Landkreise / kreisfreie Städte — erkunden, vergleichen, einordnen.
-        </p>
-      </div>
+      <PageHeader
+        title="Deutschland Digital Monitor"
+        description="Offene Regionaldaten für Deutschland: Bund, Bundesländer und Landkreise / kreisfreie Städte — erkunden, vergleichen, einordnen."
+      />
 
-      <section className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Regionen</CardTitle>
-            <CardDescription>Bund · Bundesländer · Kreise</CardDescription>
-          </CardHeader>
-          <CardContent className="text-2xl font-semibold">
-            {regions.isPending ? "…" : `${fmt(regions.data?.length)} gesamt`}
-            <p className="mt-1 text-sm font-normal text-muted-foreground">
-              {laender > 0 ? `${laender} Länder · ${kreise} Kreise / kreisfreie Städte` : "nicht verfügbar"}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Indikatoren</CardTitle>
-            <CardDescription>7 Fachdomänen</CardDescription>
-          </CardHeader>
-          <CardContent className="text-2xl font-semibold">
-            {indicators.isPending ? "…" : indicators.data?.length}
-            <p className="mt-1 text-sm font-normal text-muted-foreground">
-              reale Werte aus dem vorbereiteten Snapshot
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Quellen</CardTitle>
-            <CardDescription>offizielle Datenanbieter</CardDescription>
-          </CardHeader>
-          <CardContent className="text-2xl font-semibold">
-            {meta.isPending ? "…" : meta.data?.sources.length}
-            <p className="mt-1 text-sm font-normal text-muted-foreground">
-              Destatis · BA · BNetzA · VGR · UBA
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Snapshot</CardTitle>
-            <CardDescription>nur lesbar, unveränderlich</CardDescription>
-          </CardHeader>
-          <CardContent className="text-sm">
-            {meta.data ? (
-              <p className="text-muted-foreground">
-                {new Date(meta.data.snapshot.built_at_utc).toLocaleString("de-DE")}
-              </p>
-            ) : (
-              <p className="text-muted-foreground">nicht verfügbar</p>
-            )}
-          </CardContent>
-        </Card>
+      <section className="mb-10 flex flex-wrap gap-x-12 gap-y-6">
+        <Kpi
+          label="Regionen"
+          value={regions.data?.length ?? null}
+          unit="gesamt"
+          hint={
+            regions.data
+              ? `${regions.data.filter((r) => r.type === "bundesland").length} Länder · ${
+                  regions.data.filter((r) => r.type === "kreis").length
+                } Kreise`
+              : undefined
+          }
+        />
+        <Kpi label="Indikatoren" value={indicators.data?.length ?? null} deltaSuffix="" />
+        <Kpi label="Quellen" value={meta.data?.sources.length ?? null} deltaSuffix="" />
+        {meta.data?.snapshot.built_at_utc && (
+          <Kpi
+            label="Snapshot"
+            value={new Date(meta.data.snapshot.built_at_utc).toLocaleDateString("de-DE")}
+            deltaSuffix=""
+          />
+        )}
       </section>
 
-      <section className="mt-10 grid gap-6 lg:grid-cols-2">
-        <Card>
+      <section className="grid gap-10 lg:grid-cols-2">
+        <Card className="shadow-none">
           <CardHeader>
             <CardTitle>Indikatoren (real)</CardTitle>
-            <CardDescription>aus GET /api/indicators</CardDescription>
+            <CardDescription>alle Indikatoren im vorbereiteten Snapshot</CardDescription>
           </CardHeader>
-          <CardContent className="max-h-96 overflow-auto">
+          <CardContent className="max-h-96 overflow-auto p-0 px-6 pb-6">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-muted-foreground">
@@ -127,13 +87,11 @@ export function HomePage() {
           </CardContent>
         </Card>
 
-        <div className="grid gap-6">
-          <Card>
+        <div className="flex flex-col gap-6">
+          <Card className="shadow-none">
             <CardHeader>
               <CardTitle>Beste Arbeitsmärkte</CardTitle>
-              <CardDescription>
-                niedrigste Arbeitslosenquote (Kreise, get /api/rankings)
-              </CardDescription>
+              <CardDescription>niedrigste Arbeitslosenquote (Kreise)</CardDescription>
             </CardHeader>
             <CardContent>
               {ranking.isError && (
@@ -153,7 +111,11 @@ export function HomePage() {
               </ol>
             </CardContent>
           </Card>
-          <DomainsChart />
+
+          <p className="text-sm text-muted-foreground">
+            Alle Darstellungen lesen ausschließlich den vorbereiteten DuckDB-Snapshot —
+            gemessen in wenigen Millisekunden, ohne externe Abfragen zur Laufzeit.
+          </p>
         </div>
       </section>
     </div>

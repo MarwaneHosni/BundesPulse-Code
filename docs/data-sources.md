@@ -51,12 +51,15 @@ Air-pollutant values are **station-based**. The simple geographic mapping used:
 > region** (period: 2024); *station → region (Bundesland)* comes from the
 > official UBA station metadata (federal-state code and coordinates).
 
-The UBA `measures` API (per-station annual means) was **unreachable from this
-build environment** (HTTP 500/504/timeout), while the station register works.
-The fetcher stages the indicator definitions and the station→Land mapping, and
-retries the values with a small budget; if none are retrieved it fails gracefully
+The UBA `measures` API (per-station annual means) cannot serve full-year data
+from this build environment — full-year requests return HTTP 504 (server-aggregation
+timeout), and even the station list is intermittently slow. The fetcher stages
+the indicator definitions and the station→Land mapping, and retries the values
+with a small budget; if none are retrieved it fails gracefully
 – **no values are fabricated**. Re-run `pipeline/fetch_umweltbundesamt.py` once
-the API is reachable to populate `no2`/`pm10`.
+the API is reachable to populate `no2`/`pm10`. All other integrated domains
+(Demography, Employment incl. unemployment/rate, Economy, Housing, Mobility,
+Infrastructure charging) contain **real values**.
 
 ## Re-run the pipeline
 

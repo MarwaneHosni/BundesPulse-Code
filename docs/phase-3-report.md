@@ -140,6 +140,27 @@ Verified values: Bayern BIP 1995→2024 = 306 879 → 796 174 Mio €; BIP/Einwo
 
 Snapshot now: 417 regions · 16 indicators · 2612 observations · 9 sources.
 
+## Addendum 4 (major data domains — verification & status)
+
+Re-ran and verified the remaining major domains end-to-end (real data in DuckDB):
+
+- **Bundesagentur für Arbeit** — `unemp` + `unemp_rate` for 400 Kreise
+  (Dez 2025) and `emp_social` per Bundesland (Jun 2022): e.g. Duisburg 17 499
+  Arbeitslose, Gelsenkirchen 15.2 % (highest rate), NRW 7.23 M svB.
+- **Infrastructure (Bundesnetzagentur)** — after the Kreis-name matcher
+  improvements (per-Land + fuzzy matching), `chargers` now cover ~all register
+  entries: Deutschland 206 628 Ladepunkte, 24.76 je 10 000 Einwohner
+  (Kreis-level sum equals the national total), top Kreise Berlin 7 506,
+  Hamburg 5 815, München 5 093.
+- **Umweltbundesamt (NO2/PM10)** — station→Bundesland mapping and indicator
+  definitions are staged; the values API cannot serve full-year data
+  (server HTTP 504 on full-year aggregation) and remains intermittently slow,
+  so `no2`/`pm10` carry **no fabricated values**. Re-attempted and documented;
+  populating once the API behaves.
+
+Re-verified queries by region, by year, and national aggregates; snapshot
+unchanged at 417 regions · 16 indicators · 2612 observations · 9 sources.
+
 ## 6. Next steps
 
 - Extend `pipeline/fetch_destatis.py` to further official per-Land datasets

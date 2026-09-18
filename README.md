@@ -95,6 +95,7 @@ no runtime data processing:
 ```bash
 .venv/Scripts/pip install -r pipeline/requirements.txt      # install once
 .venv/Scripts/python -m pipeline.fetch_destatis             # Demography (Destatis)
+.venv/Scripts/python -m pipeline.fetch_destatis_more        # Economy / Housing / Traffic (Destatis, VGR)
 .venv/Scripts/python -m pipeline.fetch_arbeitsagentur       # Employment (BA)
 .venv/Scripts/python -m pipeline.fetch_netzagentur          # Charging (BNetzA)
 .venv/Scripts/python -m pipeline.fetch_umweltbundesamt      # Air quality (UBA)
@@ -116,11 +117,13 @@ validates (broken region ids, duplicates, non-finite values), and writes
 
 **Current contents (real official data):** population (+ growth + age shares)
 for Deutschland and all 16 Bundesländer (2023/24, plus a 1990–2024 national
-series); unemployment and unemployment rate for **400 Kreise** (Dec 2025);
-svB employment per Bundesland (Jun 2022); public charging points for **377
-Kreise** and per-10,000-inhabitants for all Bundesländer; UBA air-quality
-stations mapped to regions (NO2/PM10 values pending the UBA API — see
-[`docs/data-sources.md`](docs/data-sources.md)).
+series); **GDP per Bundesland 1991–2024 and GDP per capita (VGR der Länder)**;
+**housing construction (genehmigte/fertiggestellte Wohnungen, 2022) per
+Bundesland**; **road accidents per Bundesland (2024–2025)**; unemployment and
+unemployment rate for **400 Kreise** (Dec 2025); svB employment per Bundesland
+(Jun 2022); public charging points for **377 Kreise** and per-10,000-inhabitants
+for all Bundesländer; UBA air-quality stations mapped to regions (NO2/PM10
+values pending the UBA API — see [`docs/data-sources.md`](docs/data-sources.md)).
 
 After building, `/api/health` reports `snapshot.configured: true` and the
 backend opens the file read-only. The committed `data/raw/sample/` CSVs are a

@@ -15,6 +15,10 @@ AGS** (`DE`, federal-state codes `01`–`16`, five-digit Kreis codes).
 | **Employment** | `unemp` – Arbeitslose (persons) | Bundesagentur für Arbeit, *Arbeitslose nach Kreisen* (Dezember 2025) | **400 Kreise**, Dez-2025 |
 | **Employment** | `unemp_rate` – Arbeitslosenquote (%) | Bundesagentur für Arbeit (published rate) | 400 Kreise, Dez-2025 |
 | **Employment** | `emp_social` – svB Beschäftigte am Arbeitsort | Bundesagentur für Arbeit, *Gemeindedaten der Beschäftigten* (Juni 2022) | 16 Länder + DE*, Jun-2022 |
+| **Economy** | `gdp_mio` – BIP in jeweiligen Preisen (Mio €) | Arbeitskreis VGR der Länder (VGRdL), yearbook `r1b1` via statistikportal.de | Länder + DE, **1991–2024** |
+| **Economy** | `gdp_pc` – BIP je Einwohner (€, derived) | VGRdL BIP ÷ population (same workbook) | Länder + DE, 1991–2024 |
+| **Housing** | `housing_permits`, `housing_completions` (Wohnungen) | Destatis, *Bautätigkeit* report (2022) | Länder + DE, 2022 |
+| **Mobility** | `traffic_accidents` – Straßenverkehrsunfälle insgesamt | Destatis, *Statistischer Bericht Verkehrsunfälle* (20807) | Länder + DE, **2024 & 2025** |
 | **Environment** | `no2`, `pm10` – Jahresmittel (µg/m³), station-based | Umweltbundesamt, Luftmessnetz | station→Land mapping integrated; **concentration values pending** (see below) |
 | **Infrastructure** | `chargers` – öffentl. Ladepunkte | Bundesnetzagentur, *Ladesaeulenregister* | **377 Kreise** + 16 Länder + DE, as-of 2026-07-28 |
 | **Infrastructure** | `chargers_per_10k` – Ladepunkte je 10 000 Einw. (derived) | BNetzA register × Destatis population 2024 | Länder + DE, 2026 |
@@ -58,6 +62,7 @@ the API is reachable to populate `no2`/`pm10`.
 
 ```bash
 .venv/Scripts/python -m pipeline.fetch_destatis
+.venv/Scripts/python -m pipeline.fetch_destatis_more     # Economy / Housing / Traffic
 .venv/Scripts/python -m pipeline.fetch_arbeitsagentur
 .venv/Scripts/python -m pipeline.fetch_netzagentur
 .venv/Scripts/python -m pipeline.fetch_umweltbundesamt   # station mapping; values best-effort

@@ -117,6 +117,29 @@ Snapshot now: 417 regions · 11 indicators · 1428 observations · 6 sources.
 Verified: Kreis unemployment (e.g. Gelsenkirchen 15.2%), per-Land employment
 (NRW 7.23M), chargers (Bayern 39 456; 29.94 per 10k), sources recorded.
 
+## Addendum 3 (Destatis: economy, housing, transport)
+
+New `pipeline/fetch_destatis_more.py` stages three more real per-Bundesland
+datasets into `data/processed/destatis_more/`:
+
+- **Economy (VGR der Länder)**: BIP in jeweiligen Preisen per Land, **1991–2024**
+  (+ derived BIP je Einwohner), parsed from the official VGRdL yearbook
+  (`vgrdl_r1b1`) on statistikportal.de. The workbook stacks several tables on
+  one sheet – the parser now takes only the first block.
+- **Housing**: genehmigte und fertiggestellte Wohnungen 2022 per Land, from the
+  Destatis *Bautätigkeit* report (per-Land columns split across 1.4-*/1.5-*
+  sheets).
+- **Transport**: Straßenverkehrsunfälle insgesamt per Land, **2024 & 2025**,
+  from the Destatis *Statistischer Bericht Verkehrsunfaelle* (20807; the 2023
+  report lacks the total-accidents column, so it is not included). The 2025
+  layout puts the Land in a dedicated `Land` column – handled.
+
+Verified values: Bayern BIP 1995→2024 = 306 879 → 796 174 Mio €; BIP/Einwohner
+2024 Hamburg 87 688 €; housing completions DE 2022 = 295 275; road accidents DE
+2024 = 2 512 697.
+
+Snapshot now: 417 regions · 16 indicators · 2612 observations · 9 sources.
+
 ## 6. Next steps
 
 - Extend `pipeline/fetch_destatis.py` to further official per-Land datasets

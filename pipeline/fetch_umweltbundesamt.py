@@ -139,7 +139,12 @@ def main() -> None:
     print("- UBA: station register -> region mapping")
     try:
         stations = _stations()
-    except (urllib.error.URLError, urllib.error.HTTPError, RuntimeError, ValueError) as e:
+    except (
+        urllib.error.URLError,
+        urllib.error.HTTPError,
+        RuntimeError,
+        ValueError,
+    ) as e:
         print(f"  WARNING: station register unavailable ({e}); writing empty staging.")
         stations = {}
     print(f"  active stations: {len(stations)}")

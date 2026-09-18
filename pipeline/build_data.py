@@ -34,7 +34,13 @@ PROCESSED_DIR = REPO_ROOT / "data" / "processed"
 SAMPLE_DIR = REPO_ROOT / "data" / "raw" / "sample"
 
 # Order matters: earlier dirs win on duplicate region rows.
-STAGE_DIRS = ["destatis", "arbeitsagentur", "netzagentur", "umweltbundesamt"]
+STAGE_DIRS = [
+    "destatis",
+    "destatis_more",
+    "arbeitsagentur",
+    "netzagentur",
+    "umweltbundesamt",
+]
 
 SNAPSHOT_PATH = Path(
     os.environ.get(

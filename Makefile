@@ -9,6 +9,7 @@
 ## Fetch + stage all official data sources
 data-fetch:
 	.venv/bin/python -m pipeline.fetch_destatis
+	.venv/bin/python -m pipeline.fetch_destatis_more
 	.venv/bin/python -m pipeline.fetch_arbeitsagentur
 	.venv/bin/python -m pipeline.fetch_netzagentur
 	.venv/bin/python -m pipeline.fetch_umweltbundesamt

@@ -73,6 +73,11 @@ BundesPulse/
   * `backend/api/schemas.py` — Pydantic response models.
   * `backend/config.py` — `Settings` (snapshot path from
     `BUNDESPULSE_SNAPSHOT`; defaults to `data/snapshots/bundespulse.duckdb`).
+  * `backend/analytics/measures.py` — core analytical measures (percentage
+    change, year-over-year change, region-vs-benchmark comparisons, ranking,
+    percentiles, per-capita/per-10,000 normalisation, Pearson/Spearman
+    correlation, z-score anomaly detection). Pure functions that handle
+    missing values, zero denominators and insufficient data.
   * `backend/db.py` — single lazy DuckDB connection, opened with
     `read_only=True`. Writes are refused by DuckDB itself.
 * If no snapshot exists yet, the health endpoint reports an honest

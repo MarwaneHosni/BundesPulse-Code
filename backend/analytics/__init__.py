@@ -1,16 +1,15 @@
-"""Analytics package (foundation placeholder).
+"""Analytics package.
 
-This package will host the pre-computed analytical computations consumed by
-the read-only API — per the product spec §7 and §11:
+Read-only analytical functions consumed later by the API and the frontend.
+Per the product spec §7 and §11:
 
-* the measures taxonomy (level, absolute change, % change, percentage-point
-  change, per-capita, index);
-* ranks and percentiles (tie-consistent, per indicator × period × level);
-* descriptive statistics and linear trends;
-* correlation coefficients (Pearson) for the Relationship Explorer.
+* ``measures.py`` - the core measures: percentage change, year-over-year
+  change, region-vs-benchmark comparisons, ranking, percentiles, per-capita
+  (per-10,000) normalisation, Pearson/Spearman correlation, and simple
+  z-score anomaly detection. All functions are pure and handle missing
+  values, zero denominators, and insufficient data explicitly.
 
-Per the product architecture, all heavy analytics run *offline* in the
-data-build stage and are materialised into the snapshot. A future phase will
-either reuse these modules inside the pipeline or reference their outputs; the
-web backend itself must never recompute statistics at request time.
+Heavy, pre-computed analytics (ranks/percentiles materialised per indicator)
+still belong to the data-build pipeline; these functions are the reusable,
+testable building blocks for both the pipeline and the read-only API.
 """

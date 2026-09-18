@@ -155,17 +155,17 @@ def _match_kreis(name: str, name_to_ags: dict[str, str]) -> str | None:
 
 
 def _load_population() -> dict[str, float]:
-    """Land id -> population (latest period, Destatis 2024)."""
-    pop: dict[str, float] = {}
+    """Land id -> population (latest available year, Destatis pop_total)."""
+    pop: dict[str, dict[int, float]] = {}
     if not DESTATIS_OBS.exists():
-        return pop
+        return {}
     with open(DESTATIS_OBS, newline="", encoding="utf-8") as fh:
         for row in csv.reader(fh):
             if row and row[0] == "region_id":
                 continue
             if row and len(row) >= 5 and row[1] == "1":
-                pop.setdefault(row[0], float(row[3]))
-    return pop
+                pop.setdefault(row[0], {})[int(row[2])] = float(row[3])
+    return {rid: years[max(years)] for rid, years in pop.items() if years}
 
 
 def main() -> None:

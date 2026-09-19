@@ -8,17 +8,17 @@ import type { RegionGeoJson } from "@/lib/api"
  * used by the legend so both stay perfectly in sync (single source of truth).
  */
 const RAMP = [
-  "#fbf3dd",
-  "#f4e2ad",
-  "#eacd79",
-  "#dcae3e",
-  "#c67e2b",
-  "#a94a22",
-  "#82121a",
+  "#fff7d6",
+  "#fce999",
+  "#f7d24a",
+  "#e8a200",
+  "#d3601c",
+  "#c1121f",
+  "#7a0008",
 ]
 
 /** Color for features without an observation. */
-const NO_DATA_FILL = "#cbc3b4"
+const NO_DATA_FILL = "#cfcfcf"
 
 /** minimal structural type for the GeoJSON payload MapLibre accepts */
 interface GeoJsonLike {
@@ -131,7 +131,7 @@ export function RegionsMap({
             type: "fill",
             source: "regions",
             paint: {
-              "fill-color": "#4A1E14",
+              "fill-color": "#000000",
               "fill-opacity": [
                 "case",
                 ["boolean", ["feature-state", "hover"], false],
@@ -338,7 +338,7 @@ export function MapLegend({
             className="size-3 rounded-[3px] border border-border"
             style={{
               backgroundImage:
-                "repeating-linear-gradient(45deg, #cbc3b4 0 2px, #e7e0d2 2px 4px)",
+                "repeating-linear-gradient(45deg, #cfcfcf 0 2px, #e6e6e6 2px 4px)",
             }}
           />
           keine Daten{missingCount != null ? ` (${missingCount})` : ""}

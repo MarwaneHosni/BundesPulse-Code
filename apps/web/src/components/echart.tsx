@@ -23,29 +23,29 @@ const BASE_THEME: EChartsOption = {
   textStyle: {
     fontFamily:
       'ui-sans-serif, "Segoe UI Variable Text", "Segoe UI", Inter, system-ui, -apple-system, sans-serif',
-    color: "#6b6154",
+    color: "#595959",
     fontSize: 12,
   },
-  color: ["#8C1418", "#C67E2B", "#3F6B4F", "#7A4A6B", "#2E6E68", "#A5541E", "#6E7A2E", "#4A4A4A"],
-  grid: { borderColor: "rgba(120,104,80,0.25)" },
+  color: ["#C1121F", "#E8A200", "#2E6E68", "#7A4A6B", "#2E7D74", "#B5561B", "#6E7A2E", "#111111"],
+  grid: { borderColor: "rgba(0,0,0,0.12)" },
   xAxis: {
-    axisLine: { lineStyle: { color: "rgba(120,104,80,0.5)" } },
-    axisTick: { lineStyle: { color: "rgba(120,104,80,0.5)" } },
-    axisLabel: { color: "#6b6154" },
-    splitLine: { lineStyle: { color: "rgba(120,104,80,0.18)" } },
+    axisLine: { lineStyle: { color: "rgba(0,0,0,0.35)" } },
+    axisTick: { lineStyle: { color: "rgba(0,0,0,0.35)" } },
+    axisLabel: { color: "#595959" },
+    splitLine: { lineStyle: { color: "rgba(0,0,0,0.08)" } },
   },
   yAxis: {
-    axisLine: { lineStyle: { color: "rgba(120,104,80,0.5)" } },
-    axisTick: { lineStyle: { color: "rgba(120,104,80,0.5)" } },
-    axisLabel: { color: "#6b6154" },
-    splitLine: { lineStyle: { color: "rgba(120,104,80,0.18)" } },
+    axisLine: { lineStyle: { color: "rgba(0,0,0,0.35)" } },
+    axisTick: { lineStyle: { color: "rgba(0,0,0,0.35)" } },
+    axisLabel: { color: "#595959" },
+    splitLine: { lineStyle: { color: "rgba(0,0,0,0.08)" } },
   },
-  legend: { textStyle: { color: "#6b6154" } },
+  legend: { textStyle: { color: "#595959" } },
   tooltip: {
-    backgroundColor: "rgba(30,22,15,0.96)",
+    backgroundColor: "rgba(10,10,10,0.96)",
     borderColor: "rgba(255,255,255,0.12)",
     borderWidth: 1,
-    textStyle: { color: "#f3ece0" },
+    textStyle: { color: "#f5f5f5" },
   },
 }
 

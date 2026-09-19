@@ -164,7 +164,11 @@ export function HomePage() {
               <h1 className="mt-6 font-display text-[2.5rem] font-semibold leading-[1.02] tracking-tight text-balance sm:text-[3.25rem]">
                 Deutschland <span className="text-primary">Digital</span> Monitor
               </h1>
-              <span aria-hidden="true" className="mt-5 block h-1 w-16 rounded-full bg-primary" />
+              <span aria-hidden="true" className="bp-flag mt-5 h-1 w-20 rounded-full">
+                <span />
+                <span />
+                <span />
+              </span>
               <p className="mt-5 max-w-[56ch] text-base leading-7 text-muted-foreground">
                 Offene Regionaldaten für Deutschland: Bund, Bundesländer und Landkreise / kreisfreie
                 Städte — erkunden, vergleichen, einordnen.
@@ -240,7 +244,7 @@ export function HomePage() {
               <span
                 aria-hidden="true"
                 className="grid size-8 shrink-0 place-items-center rounded-xl"
-                style={{ backgroundColor: "#8C14181f", color: "#8C1418" }}
+                style={{ backgroundColor: "#0a0a0a1f", color: "#0a0a0a" }}
               >
                 <MapIcon className="size-4" />
               </span>
@@ -255,14 +259,14 @@ export function HomePage() {
                   className="h-full"
                   style={{
                     width: `${(laender / Math.max(1, all.length)) * 100}%`,
-                    backgroundColor: "#8C1418",
+                    backgroundColor: "#c1121f",
                   }}
                 />
                 <span
                   className="h-full"
                   style={{
                     width: `${(kreise / Math.max(1, all.length)) * 100}%`,
-                    backgroundColor: "#8C141866",
+                    backgroundColor: "#c1121f66",
                   }}
                 />
               </div>
@@ -283,7 +287,7 @@ export function HomePage() {
               <span
                 aria-hidden="true"
                 className="grid size-8 shrink-0 place-items-center rounded-xl"
-                style={{ backgroundColor: "#3F6B4F1f", color: "#3F6B4F" }}
+                style={{ backgroundColor: "#c1121f1f", color: "#c1121f" }}
               >
                 <LineChart className="size-4" />
               </span>
@@ -317,7 +321,7 @@ export function HomePage() {
               <span
                 aria-hidden="true"
                 className="grid size-8 shrink-0 place-items-center rounded-xl"
-                style={{ backgroundColor: "#B8860B1f", color: "#B8860B" }}
+                style={{ backgroundColor: "#f5c40033", color: "#a87900" }}
               >
                 <Database className="size-4" />
               </span>
@@ -333,7 +337,7 @@ export function HomePage() {
                     key={i}
                     aria-hidden="true"
                     className="size-2.5 rounded-[3px]"
-                    style={{ backgroundColor: "#B8860B" }}
+                    style={{ backgroundColor: "#f5c400" }}
                   />
                 ))}
               </div>
@@ -352,7 +356,7 @@ export function HomePage() {
               <span
                 aria-hidden="true"
                 className="grid size-8 shrink-0 place-items-center rounded-xl"
-                style={{ backgroundColor: "#4A4A4A1f", color: "#4A4A4A" }}
+                style={{ backgroundColor: "#6b6b6b1f", color: "#6b6b6b" }}
               >
                 <CalendarDays className="size-4" />
               </span>
@@ -369,7 +373,7 @@ export function HomePage() {
                 <span className="relative h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
                   <span
                     className="absolute inset-0 h-full"
-                    style={{ backgroundColor: "#4A4A4A" }}
+                    style={{ backgroundColor: "#6b6b6b" }}
                   />
                 </span>
                 <span className="text-[10px] tabular-nums text-muted-foreground">

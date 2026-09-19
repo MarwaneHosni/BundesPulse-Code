@@ -65,7 +65,7 @@ theme/palette values and `className` strings.
 
 ## 3. Proposed visual direction
 
-**A civic instrument.** The data is the star: warm paper ground, near-black ink,
+**A civic instrument.** The data is the star: paper-white ground, near-black ink,
 one deep flag red as the only interactive accent with gold as a secondary
 highlight, hairline rules doing the structuring (not cards), and a deliberate
 *figure* treatment as the single place of visual risk — large, tabular, tightly
@@ -77,34 +77,50 @@ as startup/marketing/AI.
 
 ## 4. Palette
 
-German civic palette — **schwarz–rot–gold**: warm paper, near-black ink, one
-deep flag red as the sole interactive accent and gold reserved for highlights.
+German civic palette — **schwarz–rot–gold**. This is defined as much by *where*
+each colour sits as by the hues: **black is structure** (ink, focus, footer
+band, one stat accent), **red is the interactive accent** (links, buttons,
+active/selected state, the first flag band), **gold is highlight** (secondary
+stat accents, legend, the last flag band), all on **paper white**.
 
-### Base UI (6 values)
-| Token | Hex | Use | Rationale |
+### Base UI
+| Token | Hex | Use | Placement / rationale |
 |---|---|---|---|
-| **paper** | `#FBF8F1` | page background | warm document paper |
-| **surface** | `#F1EBDF` | panels, table stripes, map backdrop | warm neutral |
-| **ink** | `#1A1512` | primary text, axes | near-black, warm cast, AAA |
-| **muted-ink** | `#6B6154` | captions, sources, secondary | AA on paper |
-| **line** | `#E4DCCB` | borders, rules, gridlines | quiet, warm structure |
-| **accent (red)** | `#B0121B` | links, focus, active control, selected region | German flag red, deepened for AA on paper |
-| **gold** | `#C9A227` | highlights, badges, legend accents | German flag gold, secondary accent |
+| **paper** | `#FFFFFF` | page background | crisp, official; flag colours stay true on white |
+| **ink** | `#0A0A0A` | text, focus ring, footer band | flag black as structure, not just text |
+| **muted-ink** | `#595959` | captions, sources, secondary | neutral grey, AA on white |
+| **line** | `#E2E2E2` | borders, rules, gridlines | quiet neutral structure |
+| **red** | `#C1121F` | links, primary buttons, active/selected | flag red, deepened for AA on white |
+| **gold** | `#F5C400` | stat accents, unit charts, flag band | flag gold; never body text |
+| **accent-weak** | `#FFF0C2` | hover fills (outline/ghost buttons, list rows) | pale gold, black text |
 
-Derived: `--accent-weak #F7E9BE` (hover/selection), `--destructive #7A1418`.
-Radius `--radius: 0.375rem` (6px).
+`--flag-black #0A0A0A`, `--flag-red #C1121F`, `--flag-gold #F5C400` are named
+tokens. Radius `--radius: 0.375rem` (6px).
+
+### Schwarz–rot–gold motif
+One recurring band, `.bp-flag` (three equal segments, in flag order), placed
+deliberately and nowhere else:
+- **top edge of the site header** (the page opens on the flag),
+- **under the home hero title** (replaces a plain accent rule),
+- **top edge of the footer**, which is a **black band** — so the page is framed
+  black/red/gold top and bottom,
+- the **logo mark** (a small stacked flag).
+
+The four home stat cards also read in flag order — **01 black, 02 red, 03 gold**
+— with **04 neutral grey** for the snapshot meta.
 
 ### Data palette (separate from UI; colour-blind safe)
-- **Sequential (map/chart), 7 steps:** `#FBF3DD #F4E2AD #EACD79 #DCAE3E #C67E2B #A94A22 #82121A`
-  (gold → deep red).
+- **Sequential (map/chart), 7 steps:** `#FFF7D6 #FCE999 #F7D24A #E8A200 #D3601C #C1121F #7A0008`
+  (gold → flag red → deep red). This is the flag gradient, so the map itself
+  carries the national identity.
 - **Diverging “vs. Deutschland”, 7 steps (neutral midpoint at the national value):**
-  `#8C5A00 #C78A1E #EBC66F #F4EFE4 #E7A79A #C4573F #8C1418`.
+  `#8A5A00 #C98A10 #F3D168 #F2F2F2 #EFA9A9 #D05252 #8B0000`.
 - **Qualitative (categories, compared regions), ≤8:**
-  `#8C1418 #C67E2B #3F6B4F #7A4A6B #2E6E68 #A5541E #6E7A2E #4A4A4A`.
-- **No data:** `#CBC3B4`, drawn with a 45° hatch
+  `#C1121F #E8A200 #2E6E68 #7A4A6B #2E7D74 #B5561B #6E7A2E #111111`.
+- **No data:** `#CFCFCF`, drawn with a 45° hatch
   (`repeating-linear-gradient`), always present in legends.
 
-Rationale: the warm gold↔red ramp keeps the flag identity while staying safe for
+Rationale: the gold↔red ramp keeps the flag identity while staying safe for
 red-green CVD; meaning is never hue-only — class breaks, labels and the hatch
 carry it too.
 
@@ -149,14 +165,14 @@ tell.
 
 ## 9. Borders
 
-Hairlines (`--line #E4DCCB`, 1px) are the primary structuring device: section
+Hairlines (`--line #E2E2E2`, 1px) are the primary structuring device: section
 top rules, table header/row separators, filter-bar rule, footer rule. Panels that
 truly need a boundary get a 1px border with no shadow.
 
 ## 10. Shadows
 
 Only two uses: (a) overlay surfaces that float above content (map popup, select
-dropdown menu) get one soft shadow (`0 4px 14px rgb(40 28 18 / .14)`);
+dropdown menu) get one soft shadow (`0 4px 14px rgb(10 10 10 / .14)`);
 (b) none anywhere else. Cards/stat blocks lose `shadow`/`shadow-sm` entirely.
 
 ## 11. Charts (ECharts)
@@ -167,14 +183,14 @@ already live — no component change):
 - Tooltip: paper surface, 1px `--line`, 6px radius, soft shadow, `de-DE`
   formatting (unchanged logic).
 - Series colours from the data palette: single-series = sequential end
-  `#8C1418`; region-vs-DE = accent + `--muted-ink` reference line; multi-region =
-  qualitative German-warm set, one stable colour per region across the page.
+  `#C1121F`; region-vs-DE = accent + `--muted-ink` reference line; multi-region =
+  qualitative flag-led set, one stable colour per region across the page.
 - No decorative gradients, no 3D, no default-theme fonts.
 
 ## 12. Maps (MapLibre)
 
 - Light: backdrop `--surface`; outlines white 0.6px; fill = sequential ramp;
-  hover = `#4A1E14` at ~16% overlay; no-data = `#CBC3B4` hatch.
+  hover = `#000000` at ~16% overlay; no-data = `#CFCFCF` hatch.
 - Popup (`.bp-popup`): paper/ink; 6px radius; soft shadow; tabular figures; rank
   line in `--muted-ink`.
 - Legend: uses the same ramp/hatch; no-data swatch always shown when present.
@@ -188,7 +204,7 @@ no zebra stripes (rules suffice); container overflow unchanged.
 
 ## 14. Colour mode
 
-**Light only.** The German palette is tuned for a warm paper ground and is the
+**Light only.** The German palette is tuned for a paper-white ground and is the
 single supported mode; there is no `prefers-color-scheme` override and no `dark:`
 variants. `color-scheme: light` is set on `:root`. Charts, maps, popups and
 legends all use the light data ramps.

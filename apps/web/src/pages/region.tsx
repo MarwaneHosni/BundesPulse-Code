@@ -563,7 +563,7 @@ function trendOption(
   deSeries: { data?: { series: Array<{ period: number; value: number }> } },
   region: Region,
   unit: string,
-  color = "#8C1418",
+  color = "#C1121F",
 ): Record<string, unknown> {
   const de = deSeries?.data?.series ?? []
   const reg = regionSeries?.data?.series ?? []
@@ -607,8 +607,8 @@ function trendOption(
               symbol: "circle",
               showSymbol: false,
               connectNulls: false,
-              lineStyle: { color: "#a89c86", width: 1.5, type: "dashed" as const },
-              itemStyle: { color: "#a89c86" },
+              lineStyle: { color: "#a0a0a0", width: 1.5, type: "dashed" as const },
+              itemStyle: { color: "#a0a0a0" },
               emphasis: { focus: "series" },
               data: periods.map((p) => (deMap.has(p) ? deMap.get(p)! : null)),
             },
@@ -630,7 +630,7 @@ function comparisonOption(
   entries: Array<{ region_id: string; name: string; value: number }>,
   regionId: string,
   comp: Insight,
-  color = "#8C1418",
+  color = "#C1121F",
 ): Record<string, unknown> {
   const sorted = [...entries].sort((a, b) => b.value - a.value)
   let shown = sorted
@@ -642,7 +642,7 @@ function comparisonOption(
   const bars = shown
     .map((e) => ({
       value: e.value,
-      itemStyle: { color: e.region_id === regionId ? color : "#e4dccb" },
+      itemStyle: { color: e.region_id === regionId ? color : "#e6e6e6" },
     }))
     .reverse()
 
@@ -670,7 +670,7 @@ function comparisonOption(
         label: {
           show: true,
           position: "right",
-          color: "#6b6154",
+          color: "#595959",
           fontSize: 11,
           formatter: (p: { value: number }) => fmt(p.value, 0),
         },
@@ -679,8 +679,8 @@ function comparisonOption(
             ? {
                 silent: true,
                 symbol: "none",
-                lineStyle: { color: "#a89c86", type: "dashed" as const, width: 1 },
-                label: { formatter: "Bund", position: "insideEndTop", color: "#a89c86", fontSize: 11 },
+                lineStyle: { color: "#a0a0a0", type: "dashed" as const, width: 1 },
+                label: { formatter: "Bund", position: "insideEndTop", color: "#a0a0a0", fontSize: 11 },
                 data: [{ xAxis: deValue }],
               }
             : undefined,

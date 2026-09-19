@@ -19,19 +19,24 @@ export function SiteFooter() {
     : "Backend nicht erreichbar"
 
   return (
-    <footer className="border-t py-8">
-      <div className="container flex flex-col gap-4 text-sm text-muted-foreground">
+    <footer className="mt-12 bg-foreground text-background">
+      <div className="bp-flag h-1 w-full" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+      </div>
+      <div className="container flex flex-col gap-4 py-8 text-sm text-background/70">
         <nav className="flex flex-wrap gap-x-5 gap-y-1" aria-label="Footer-Navigation">
           {LINKS.map((l) => (
-            <Link key={l.to} to={l.to} className="hover:text-foreground">
+            <Link key={l.to} to={l.to} className="transition-colors hover:text-background">
               {l.label}
             </Link>
           ))}
         </nav>
-        <p>
+        <p className="text-background/80">
           Deutschland Digital Monitor — {data?.version ?? "…"} · {snapshotLabel}
         </p>
-        <p className="max-w-2xl text-xs">
+        <p className="max-w-2xl text-xs text-background/60">
           Read-only Plattform über einen vorbereiteten, unveränderlichen
           Datensnapshot. Keine Nutzerkonten, keine Uploads, keine
           Laufzeit-Datenerfassung.

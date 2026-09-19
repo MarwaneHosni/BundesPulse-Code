@@ -13,9 +13,21 @@ const NAV_ITEMS: { label: string; to: string; end?: boolean }[] = [
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="bp-flag h-1 w-full" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+      </div>
       <div className="container flex h-14 items-center gap-4">
         <a href="/" className="flex items-center gap-2 font-semibold">
-          <span className="text-primary">▮</span>
+          <span
+            aria-hidden="true"
+            className="flex h-4 w-3 flex-col overflow-hidden rounded-[2px]"
+          >
+            <span className="flex-1 bg-[#0a0a0a]" />
+            <span className="flex-1 bg-[#c1121f]" />
+            <span className="flex-1 bg-[#f5c400]" />
+          </span>
           BundesPulse
         </a>
         <nav className="flex gap-1 overflow-x-auto" aria-label="Hauptnavigation">

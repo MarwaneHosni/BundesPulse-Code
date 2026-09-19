@@ -1,24 +1,24 @@
-/** restrained, colour-blind-safe data hues per category (German warm palette). */
+/** restrained, colour-blind-safe data hues per category (German flag-led palette). */
 export const CATEGORY_COLOR: Record<string, string> = {
-  Demography: "#8C1418",
-  Labour: "#B8860B",
+  Demography: "#C1121F",
+  Labour: "#E8A200",
   Employment: "#2E6E68",
-  Economy: "#A5541E",
+  Economy: "#B5561B",
   Income: "#6E7A2E",
   Housing: "#7A4A6B",
   Education: "#3F6B4F",
   Environment: "#4F7A3A",
   Agriculture: "#8A9A3B",
-  Industry: "#6B5B4A",
+  Industry: "#555555",
   Mobility: "#9B3B6B",
   Infrastructure: "#C05A2E",
   Tourism: "#2E7D74",
   Health: "#B23A48",
-  "Public finance": "#4A4A4A",
+  "Public finance": "#111111",
 }
 
 export function categoryColor(category?: string): string {
-  return (category && CATEGORY_COLOR[category]) || "#8C1418"
+  return (category && CATEGORY_COLOR[category]) || "#C1121F"
 }
 
 /** same hue at reduced opacity, for tints and tracks */

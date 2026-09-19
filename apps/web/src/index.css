@@ -10,54 +10,59 @@
   :root {
     color-scheme: light;
 
-    /* UI palette: warm paper / white surface / ink / muted-ink / line / red-gold accent */
-    --background: 40 55% 96%;
-    --foreground: 24 18% 9%;
+    /* UI palette: flag black / paper white / flag red / flag gold */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 4%;
 
     --card: 0 0% 100%;
-    --card-foreground: 24 18% 9%;
+    --card-foreground: 0 0% 4%;
     --popover: 0 0% 100%;
-    --popover-foreground: 24 18% 9%;
+    --popover-foreground: 0 0% 4%;
 
-    --primary: 356 81% 38%;
-    --primary-foreground: 43 100% 96%;
+    --primary: 356 83% 41%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 40 36% 93%;
-    --secondary-foreground: 24 18% 9%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 4%;
 
-    --muted: 40 30% 93%;
-    --muted-foreground: 34 12% 37%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 35%;
 
-    --accent: 43 72% 88%;
-    --accent-foreground: 30 84% 28%;
+    --accent: 48 100% 88%;
+    --accent-foreground: 0 0% 4%;
 
-    --destructive: 350 65% 30%;
-    --destructive-foreground: 43 100% 96%;
+    --destructive: 356 75% 35%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 38 28% 85%;
-    --input: 38 28% 85%;
-    --ring: 356 81% 38%;
+    --border: 0 0% 89%;
+    --input: 0 0% 89%;
+    --ring: 0 0% 4%;
 
     --radius: 0.375rem;
 
-    /* Data palette (German warm ramp, colour-blind safe) — inline styles / legends */
-    --data-seq-1: #fbf3dd;
-    --data-seq-2: #f4e2ad;
-    --data-seq-3: #eacd79;
-    --data-seq-4: #dcae3e;
-    --data-seq-5: #c67e2b;
-    --data-seq-6: #a94a22;
-    --data-seq-7: #82121a;
-    --data-div-low-3: #8c5a00;
-    --data-div-low-2: #c78a1e;
-    --data-div-low-1: #ebc66f;
-    --data-div-mid: #f4efe4;
-    --data-div-high-1: #e7a79a;
-    --data-div-high-2: #c4573f;
-    --data-div-high-3: #8c1418;
-    --data-no: #cbc3b4;
-    --data-grid: #e7e0d2;
-    --data-label: #6b6154;
+    /* Flag black / red / gold, named for deliberate placement. */
+    --flag-black: #0a0a0a;
+    --flag-red: #c1121f;
+    --flag-gold: #f5c400;
+
+    /* Data palette (flag gold → red, colour-blind safe) — inline styles / legends */
+    --data-seq-1: #fff7d6;
+    --data-seq-2: #fce999;
+    --data-seq-3: #f7d24a;
+    --data-seq-4: #e8a200;
+    --data-seq-5: #d3601c;
+    --data-seq-6: #c1121f;
+    --data-seq-7: #7a0008;
+    --data-div-low-3: #8a5a00;
+    --data-div-low-2: #c98a10;
+    --data-div-low-1: #f3d168;
+    --data-div-mid: #f2f2f2;
+    --data-div-high-1: #efa9a9;
+    --data-div-high-2: #d05252;
+    --data-div-high-3: #8b0000;
+    --data-no: #cfcfcf;
+    --data-grid: #e6e6e6;
+    --data-label: #595959;
   }
 
   * {
@@ -116,7 +121,7 @@
     font-size: 13px;
     color: hsl(var(--foreground));
     background: hsl(var(--popover));
-    box-shadow: 0 4px 14px rgb(40 28 18 / 0.14);
+    box-shadow: 0 4px 14px rgb(10 10 10 / 0.14);
   }
   .bp-popup .maplibregl-popup-tip {
     border-top-color: hsl(var(--popover));
@@ -156,6 +161,24 @@
     margin: -6px 0 0 -6px;
     border-radius: 9999px;
     border: 2px solid hsl(var(--background));
-    box-shadow: 0 0 0 1px rgb(40 28 18 / 0.16);
+    box-shadow: 0 0 0 1px rgb(10 10 10 / 0.18);
+  }
+
+  /* Schwarz–rot–gold band: the one recurring national motif. */
+  .bp-flag {
+    display: flex;
+    overflow: hidden;
+  }
+  .bp-flag > span {
+    flex: 1 1 0%;
+  }
+  .bp-flag > span:nth-child(1) {
+    background: var(--flag-black);
+  }
+  .bp-flag > span:nth-child(2) {
+    background: var(--flag-red);
+  }
+  .bp-flag > span:nth-child(3) {
+    background: var(--flag-gold);
   }
 }

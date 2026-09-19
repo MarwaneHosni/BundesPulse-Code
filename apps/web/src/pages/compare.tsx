@@ -16,7 +16,7 @@ import type { Insight } from "@/lib/api"
 const LEVEL_DEFAULTS: Record<string, string> = { bundesland: "gdp_pc", kreis: "unemp_rate" }
 const MAX_REGIONS = 4
 
-const COLORS = ["#8C1418", "#B8860B", "#3F6B4F", "#7A4A6B"]
+const COLORS = ["#C1121F", "#E8A200", "#111111", "#2E6E68"]
 
 function fmt(v: number | null | undefined, digits = 1): string {
   if (v === null || v === undefined || !Number.isFinite(v)) return "–"

@@ -202,7 +202,7 @@ export function HomePage() {
         </div>
       </section>
 
-      <div className="container py-8">
+      <div className="w-full px-4 py-8 sm:px-6 lg:px-8">
         {/* stat ribbon */}
         <section className="grid grid-cols-2 divide-y divide-border overflow-hidden rounded-3xl border bg-card sm:grid-cols-4 sm:divide-x sm:divide-y-0">
           <div className="relative overflow-hidden p-5">

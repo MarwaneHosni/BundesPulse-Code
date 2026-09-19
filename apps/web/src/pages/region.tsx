@@ -222,7 +222,7 @@ export function RegionPage() {
       </div>
 
       <div className="border-b pb-6">
-        <h1 className="text-4xl font-semibold tracking-tight">{region.name}</h1>
+        <h1 className="text-[34px] font-semibold leading-[40px] tracking-tight">{region.name}</h1>
         <p className="mt-2 text-sm text-muted-foreground">{hierarchy}</p>
       </div>
 

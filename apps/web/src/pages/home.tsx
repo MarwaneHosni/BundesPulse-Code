@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom"
+import { Award, CalendarDays, Database, LineChart, Map } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import {
   Card,
@@ -56,7 +57,13 @@ export function HomePage() {
 
       {/* stats */}
       <section className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-3xl border bg-card p-5 transition-colors hover:border-primary/30">
+        <div className="relative rounded-3xl border bg-card p-5 transition-colors hover:border-primary/30">
+          <span
+            aria-hidden="true"
+            className="absolute right-4 top-4 grid size-9 place-items-center rounded-2xl bg-primary/10 text-primary"
+          >
+            <Map className="size-4" />
+          </span>
           <Kpi
             label="Regionen"
             value={regions.data?.length ?? null}
@@ -70,14 +77,32 @@ export function HomePage() {
             }
           />
         </div>
-        <div className="rounded-3xl border bg-card p-5 transition-colors hover:border-primary/30">
+        <div className="relative rounded-3xl border bg-card p-5 transition-colors hover:border-primary/30">
+          <span
+            aria-hidden="true"
+            className="absolute right-4 top-4 grid size-9 place-items-center rounded-2xl bg-primary/10 text-primary"
+          >
+            <LineChart className="size-4" />
+          </span>
           <Kpi label="Indikatoren" value={indicators.data?.length ?? null} deltaSuffix="" />
         </div>
-        <div className="rounded-3xl border bg-card p-5 transition-colors hover:border-primary/30">
+        <div className="relative rounded-3xl border bg-card p-5 transition-colors hover:border-primary/30">
+          <span
+            aria-hidden="true"
+            className="absolute right-4 top-4 grid size-9 place-items-center rounded-2xl bg-primary/10 text-primary"
+          >
+            <Database className="size-4" />
+          </span>
           <Kpi label="Quellen" value={meta.data?.sources.length ?? null} deltaSuffix="" />
         </div>
         {meta.data?.snapshot.built_at_utc && (
-          <div className="rounded-3xl border bg-card p-5 transition-colors hover:border-primary/30">
+          <div className="relative rounded-3xl border bg-card p-5 transition-colors hover:border-primary/30">
+            <span
+              aria-hidden="true"
+              className="absolute right-4 top-4 grid size-9 place-items-center rounded-2xl bg-primary/10 text-primary"
+            >
+              <CalendarDays className="size-4" />
+            </span>
             <Kpi
               label="Snapshot"
               value={new Date(meta.data.snapshot.built_at_utc).toLocaleDateString("de-DE")}
@@ -90,14 +115,22 @@ export function HomePage() {
       {/* content */}
       <section className="mt-6 grid gap-6 lg:grid-cols-2">
         <Card className="overflow-hidden rounded-[1.75rem]">
-          <CardHeader className="pb-3">
-            <CardTitle>Indikatoren (real)</CardTitle>
-            <CardDescription>alle Indikatoren im vorbereiteten Snapshot</CardDescription>
+          <CardHeader className="flex-row items-center gap-3 space-y-0 border-b px-6 py-4">
+            <span
+              aria-hidden="true"
+              className="grid size-10 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary"
+            >
+              <LineChart className="size-5" />
+            </span>
+            <div className="min-w-0">
+              <CardTitle>Indikatoren (real)</CardTitle>
+              <CardDescription>alle Indikatoren im vorbereiteten Snapshot</CardDescription>
+            </div>
           </CardHeader>
-          <CardContent className="max-h-96 overflow-auto p-0 px-6 pb-6">
+          <CardContent className="max-h-96 overflow-auto p-0 px-6 pb-6 pt-4">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-xs text-muted-foreground">
+                <tr className="border-b text-left text-xs text-muted-foreground">
                   <th className="pb-2 font-medium">Indikator</th>
                   <th className="pb-2 font-medium">Kategorie</th>
                   <th className="pb-2 text-right font-medium">letztes Jahr</th>
@@ -124,11 +157,19 @@ export function HomePage() {
 
         <div className="flex flex-col gap-6">
           <Card className="rounded-[1.75rem]">
-            <CardHeader className="pb-3">
-              <CardTitle>Beste Arbeitsmärkte</CardTitle>
-              <CardDescription>niedrigste Arbeitslosenquote (Kreise)</CardDescription>
+            <CardHeader className="flex-row items-center gap-3 space-y-0 border-b px-6 py-4">
+              <span
+                aria-hidden="true"
+                className="grid size-10 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary"
+              >
+                <Award className="size-5" />
+              </span>
+              <div className="min-w-0">
+                <CardTitle>Beste Arbeitsmärkte</CardTitle>
+                <CardDescription>niedrigste Arbeitslosenquote (Kreise)</CardDescription>
+              </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-4">
               {ranking.isError && (
                 <p className="text-sm text-destructive">
                   Rankings nicht verfügbar: {String(ranking.error).slice(0, 80)}
@@ -141,8 +182,10 @@ export function HomePage() {
                     className="flex items-center justify-between gap-3 rounded-2xl px-3 py-2 transition-colors hover:bg-muted/60"
                   >
                     <Link to={`/region/${e.region_id}`} className="flex items-center gap-2.5 font-medium">
-                      <span aria-hidden="true" className="size-1.5 rounded-full bg-primary" />
-                      <span>{e.rank}. {e.name}</span>
+                      <span className="grid size-6 shrink-0 place-items-center rounded-full bg-muted text-xs font-semibold tabular-nums text-muted-foreground">
+                        {e.rank}
+                      </span>
+                      <span>{e.name}</span>
                     </Link>
                     <span className="tabular-nums text-muted-foreground">{fmt(e.value)} %</span>
                   </li>

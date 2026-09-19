@@ -282,38 +282,37 @@ export function HomePage() {
           </Link>
         </div>
 
-        <div className="mt-6 space-y-5">
+        <div className="mt-6 grid items-start gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {byAlpha.map(([category, list]) => {
             const Icon = categoryIcon(category)
             return (
-              <div key={category} className="grid gap-2 sm:grid-cols-[13rem_1fr] sm:gap-6">
-                <div className="flex items-center gap-2 text-sm font-semibold">
+              <section key={category} className="overflow-hidden rounded-2xl border bg-card">
+                <header className="flex items-center gap-2.5 border-b px-4 py-3">
                   <span
                     aria-hidden="true"
                     className="grid size-7 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"
                   >
                     <Icon className="size-4" />
                   </span>
-                  <span className="truncate">{category}</span>
-                  <span className="text-xs font-normal tabular-nums text-muted-foreground">
+                  <span className="truncate text-sm font-semibold">{category}</span>
+                  <span className="ml-auto shrink-0 text-xs font-normal tabular-nums text-muted-foreground">
                     {list.length}
                   </span>
-                </div>
-                <ul className="flex flex-wrap gap-1.5">
+                </header>
+                <ul className="divide-y divide-border">
                   {list.map((ind) => (
-                    <li key={ind.slug}>
-                      <span className="inline-flex items-center gap-1.5 rounded-full border bg-card px-2.5 py-1 text-xs transition-colors hover:border-primary/40">
-                        <span className="font-medium text-foreground">{ind.name}</span>
-                        {ind.latest_period != null && (
-                          <span className="tabular-nums text-muted-foreground">
-                            {ind.latest_period}
-                          </span>
-                        )}
+                    <li
+                      key={ind.slug}
+                      className="flex items-baseline justify-between gap-3 px-4 py-2 text-sm transition-colors hover:bg-muted/50"
+                    >
+                      <span className="min-w-0 truncate">{ind.name}</span>
+                      <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
+                        {ind.latest_period ?? "–"}
                       </span>
                     </li>
                   ))}
                 </ul>
-              </div>
+              </section>
             )
           })}
         </div>

@@ -60,43 +60,6 @@
     --data-label: #6b6154;
   }
 
-  @media (prefers-color-scheme: dark) {
-    :root {
-      color-scheme: dark;
-
-      --background: 30 9% 7%;
-      --foreground: 40 28% 89%;
-
-      --card: 30 13% 10%;
-      --card-foreground: 40 28% 89%;
-      --popover: 30 13% 10%;
-      --popover-foreground: 40 28% 89%;
-
-      --primary: 356 72% 66%;
-      --primary-foreground: 30 15% 10%;
-
-      --secondary: 30 12% 13%;
-      --secondary-foreground: 40 28% 89%;
-
-      --muted: 30 12% 13%;
-      --muted-foreground: 38 12% 61%;
-
-      --accent: 42 22% 14%;
-      --accent-foreground: 40 28% 89%;
-
-      --destructive: 356 78% 64%;
-      --destructive-foreground: 30 15% 10%;
-
-      --border: 37 15% 20%;
-      --input: 37 15% 20%;
-      --ring: 356 72% 66%;
-
-      --data-grid: #2e2922;
-      --data-label: #a79e8e;
-      --data-no: #3e382f;
-    }
-  }
-
   * {
     @apply border-border;
   }
@@ -168,12 +131,6 @@
     color: hsl(var(--muted-foreground));
     font-size: 12px;
     font-variant-numeric: tabular-nums;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    .bp-popup .maplibregl-popup-content {
-      box-shadow: 0 4px 16px rgb(0 0 0 / 0.5);
-    }
   }
 
   /* Horizontal percentile / position scale (statistical bars). */

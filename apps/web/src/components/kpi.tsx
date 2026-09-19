@@ -32,7 +32,7 @@ export function Kpi({ label, value, unit, delta, deltaSuffix = "%", hint }: KpiP
             className={cn(
               "text-sm font-medium tabular-nums",
               delta! > 0
-                ? "text-emerald-600 dark:text-emerald-400"
+                ? "text-emerald-600"
                 : delta! < 0
                   ? "text-destructive"
                   : "text-muted-foreground",

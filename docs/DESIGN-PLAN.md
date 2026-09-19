@@ -97,12 +97,11 @@ Radius `--radius: 0.375rem` (6px).
 ### Data palette (separate from UI; colour-blind safe)
 - **Sequential (map/chart), 7 steps:** `#FBF3DD #F4E2AD #EACD79 #DCAE3E #C67E2B #A94A22 #82121A`
   (gold → deep red).
-- **Sequential, dark mode, 7 steps:** `#4A1A16 #6B2A1B #8F4220 #B5672C #D08F3C #E7B65E #F6D98A`.
 - **Diverging “vs. Deutschland”, 7 steps (neutral midpoint at the national value):**
   `#8C5A00 #C78A1E #EBC66F #F4EFE4 #E7A79A #C4573F #8C1418`.
 - **Qualitative (categories, compared regions), ≤8:**
   `#8C1418 #C67E2B #3F6B4F #7A4A6B #2E6E68 #A5541E #6E7A2E #4A4A4A`.
-- **No data:** light `#CBC3B4`, dark `#3E382F`, drawn with a 45° hatch
+- **No data:** `#CBC3B4`, drawn with a 45° hatch
   (`repeating-linear-gradient`), always present in legends.
 
 Rationale: the warm gold↔red ramp keeps the flag identity while staying safe for
@@ -176,10 +175,8 @@ already live — no component change):
 
 - Light: backdrop `--surface`; outlines white 0.6px; fill = sequential ramp;
   hover = `#4A1E14` at ~16% overlay; no-data = `#CBC3B4` hatch.
-- Dark: backdrop `#141210`; outlines `#3E382F`; fill = dark sequential ramp;
-  hover light overlay; no-data `#3E382F` hatch.
-- Popup (`.bp-popup`): themed for both modes — paper/ink in light, `#1E1B17`/`#EDE7DB`
-  in dark; 6px radius; soft shadow; tabular figures; rank line in `--muted-ink`.
+- Popup (`.bp-popup`): paper/ink; 6px radius; soft shadow; tabular figures; rank
+  line in `--muted-ink`.
 - Legend: uses the same ramp/hatch; no-data swatch always shown when present.
 
 ## 13. Tables
@@ -189,13 +186,12 @@ Analytical treatment: header micro-caps? **no** — sentence-case `--muted-ink`
 align; row hover `--surface` (subtle); comfortable/compact via existing `dense`;
 no zebra stripes (rules suffice); container overflow unchanged.
 
-## 14. Dark mode
+## 14. Colour mode
 
-Designed, not inverted. Surface hierarchy via tint
-(`#141210` page / `#1E1B17` panel / `#26221D` raised), `--line #3A342B`,
-`--ink #EDE7DB`, `--muted-ink #A79E8E`, `--accent #E06A6A` (AA on dark). Map and
-chart ramps use the dark sequential set; popups/legends/tooltips re-themed;
-images/borders lifted for contrast. `color-scheme: dark` set on `.dark`.
+**Light only.** The German palette is tuned for a warm paper ground and is the
+single supported mode; there is no `prefers-color-scheme` override and no `dark:`
+variants. `color-scheme: light` is set on `:root`. Charts, maps, popups and
+legends all use the light data ramps.
 
 ## 15. Responsive styling
 
@@ -225,7 +221,7 @@ current low-contrast `muted-foreground/60`.
 ## 18. Files expected to modify (visual layer only)
 
 - `apps/web/tailwind.config.js` — colour tokens (hex→HSL), fontFamily, radius.
-- `apps/web/src/index.css` — `:root`/`.dark` values, base typography, global
+- `apps/web/src/index.css` — `:root` values, base typography, global
   tabular figures, focus-visible, reduced-motion, `.bp-popup`, data-palette CSS vars.
 - `apps/web/src/components/ui/{card,button,badge}.tsx` — `className` only.
 - `apps/web/src/components/{page-header,kpi,filters,data-table,source-note,async-state,region-navigation,site-header,site-footer,regions-map}.tsx`

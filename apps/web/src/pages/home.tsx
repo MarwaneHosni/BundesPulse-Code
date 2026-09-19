@@ -282,19 +282,19 @@ export function HomePage() {
           </Link>
         </div>
 
-        <div className="mt-6 space-y-6">
+        <div className="mt-6 divide-y divide-border border-t">
           {byAlpha.map(([category, list]) => {
             const Icon = categoryIcon(category)
             return (
-              <div key={category} className="grid gap-x-10 gap-y-3 sm:grid-cols-[12rem_1fr]">
-                <div className="flex items-center gap-2 text-sm font-semibold sm:pt-0.5">
+              <div key={category} className="grid gap-x-10 gap-y-3 py-5 sm:grid-cols-[12rem_1fr]">
+                <div className="flex items-center gap-2 sm:pt-0.5">
                   <span
                     aria-hidden="true"
                     className="grid size-7 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"
                   >
                     <Icon className="size-4" />
                   </span>
-                  <span className="truncate">{category}</span>
+                  <span className="truncate font-display text-sm font-semibold">{category}</span>
                   <span className="text-xs font-normal tabular-nums text-muted-foreground">
                     {list.length}
                   </span>
@@ -303,7 +303,7 @@ export function HomePage() {
                   {list.map((ind) => (
                     <li
                       key={ind.slug}
-                      className="flex items-baseline justify-between gap-3 border-b border-border/60 py-1 text-sm"
+                      className="flex items-baseline justify-between gap-3 py-0.5 text-sm"
                     >
                       <span className="min-w-0 truncate">{ind.name}</span>
                       <span className="shrink-0 text-xs tabular-nums text-muted-foreground">

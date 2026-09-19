@@ -175,4 +175,30 @@
       box-shadow: 0 4px 16px rgb(0 0 0 / 0.5);
     }
   }
+
+  /* Horizontal percentile / position scale (statistical bars). */
+  .bp-scale {
+    position: relative;
+    height: 6px;
+    border-radius: 9999px;
+    background: hsl(var(--muted));
+  }
+  .bp-scale-fill {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    border-radius: 9999px;
+    opacity: 0.85;
+  }
+  .bp-scale-marker {
+    position: absolute;
+    top: 50%;
+    width: 12px;
+    height: 12px;
+    margin: -6px 0 0 -6px;
+    border-radius: 9999px;
+    border: 2px solid hsl(var(--background));
+    box-shadow: 0 0 0 1px rgb(15 23 42 / 0.12);
+  }
 }

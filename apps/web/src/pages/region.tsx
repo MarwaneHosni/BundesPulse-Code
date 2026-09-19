@@ -31,6 +31,29 @@ const UNIT_LABEL: Record<string, string> = {
 /** higher = worse */
 const NEGATIVE_DIRECTION = new Set(["unemp", "unemp_rate", "no2", "pm10", "traffic_accidents"])
 
+/** restrained, colour-blind-safe data hues per category (OECD-style accents). */
+const CATEGORY_COLOR: Record<string, string> = {
+  Demography: "#3E6FB0",
+  Labour: "#B8822E",
+  Employment: "#2E8B8B",
+  Economy: "#B4703A",
+  Income: "#6E8B3D",
+  Housing: "#8A5A9B",
+  Education: "#3F8F4E",
+  Environment: "#4E9A6B",
+  Agriculture: "#7E8A3B",
+  Industry: "#7A6A5A",
+  Mobility: "#8A5A9B",
+  Infrastructure: "#C05A2E",
+  Tourism: "#2E8B8B",
+  Health: "#C0555A",
+  "Public finance": "#5A6A8A",
+}
+
+function categoryColor(category?: string): string {
+  return (category && CATEGORY_COLOR[category]) || "#1c6db0"
+}
+
 /** indicators where "vs. Germany" is an intensity benchmark (per capita / rate). */
 const INTENSITY_SLUGS = new Set([
   "gdp_pc",
@@ -302,7 +325,7 @@ export function RegionPage() {
                 </span>
               )}
             </div>
-            <EChart option={trendOption(regionSeries, deSeries, region, activeTrend?.unit ?? "")} height={340} />
+            <EChart option={trendOption(regionSeries, deSeries, region, activeTrend?.unit ?? "", categoryColor(activeTrend?.category))} height={340} />
           </div>
         )}
       </section>
@@ -332,7 +355,7 @@ export function RegionPage() {
                 </Select>
                 <span className="text-xs text-muted-foreground">Stand {activeComp.period}</span>
               </div>
-              <EChart option={comparisonOption(ranking.data?.entries ?? [], regionId, activeComp)} height={Math.max(260, Math.min(560, entriesLength(ranking.data?.entries ?? [], regionId) * 22 + 60))} />
+              <EChart option={comparisonOption(ranking.data?.entries ?? [], regionId, activeComp, categoryColor(activeComp.category))} height={Math.max(260, Math.min(560, entriesLength(ranking.data?.entries ?? [], regionId) * 22 + 60))} />
             </div>
             <ComparisonPanel activeComp={activeComp} regionId={regionId} ranking={ranking.data} />
           </div>
@@ -402,7 +425,9 @@ function SectionHeading({ title, subtitle }: { title: string; subtitle?: string 
 
 function ProfileStat({ insight, typeTotal }: { insight: Insight; typeTotal?: number }) {
   const rank = insight.rank_desc ?? null
+  const pct = insight.percentile
   const vsDe = insight.vs_de_ratio
+  const color = categoryColor(insight.category)
   const footer = [
     `Stand ${insight.period ?? "–"}`,
     rank != null ? `Rang ${rank}${typeTotal ? ` von ${typeTotal}` : ""}` : null,
@@ -411,15 +436,47 @@ function ProfileStat({ insight, typeTotal }: { insight: Insight; typeTotal?: num
     .join(" · ")
 
   return (
-    <div className="border-t pt-3">
-      <p className="text-xs font-medium text-muted-foreground">{insight.name}</p>
-      <p className="mt-1.5 text-[30px] font-semibold leading-[34px] tabular-nums tracking-tight">
+    <div className="border-t pt-4">
+      <div className="flex items-center gap-2">
+        <span
+          aria-hidden="true"
+          className="size-2 shrink-0 rounded-full"
+          style={{ backgroundColor: color }}
+        />
+        <p className="text-xs font-medium text-muted-foreground">{insight.name}</p>
+      </div>
+      <p className="mt-2 text-[30px] font-semibold leading-[34px] tabular-nums tracking-tight">
         {statValue(insight)}
         <span className="ml-1 text-base font-normal text-muted-foreground">{unitLabel(insight.unit)}</span>
       </p>
-      <p className="mt-1.5 text-xs text-muted-foreground">{footer}</p>
+      <p className="mt-1 text-xs text-muted-foreground">{footer}</p>
+      {pct != null && (
+        <div className="mt-3">
+          <div className="bp-scale">
+            <div
+              className="bp-scale-fill"
+              style={{
+                width: `${Math.max(2, Math.min(100, pct))}%`,
+                backgroundColor: color,
+              }}
+            />
+            <span
+              className="bp-scale-marker"
+              style={{
+                left: `${Math.max(0, Math.min(100, pct))}%`,
+                backgroundColor: color,
+              }}
+            />
+          </div>
+          <div className="mt-1 flex items-center justify-between text-[11px] text-muted-foreground">
+            <span>0</span>
+            <span>Perzentil {fmt(pct, 0)}</span>
+            <span>100</span>
+          </div>
+        </div>
+      )}
       {vsDe != null && vsDe !== 1 && (
-        <p className="mt-0.5 text-xs text-foreground/80">
+        <p className="mt-1.5 text-xs text-foreground/80">
           {INTENSITY_SLUGS.has(insight.slug)
             ? `${fmt(Math.abs((vsDe - 1) * 100), 0)} % ${vsDe >= 1 ? "über" : "unter"} dem Bundeswert`
             : `${fmt(vsDe * 100, 1)} % der deutschen Gesamtsumme`}
@@ -479,9 +536,34 @@ function ComparisonPanel({
           #{rankRow?.rank ?? "–"}
           {count != null && <span className="ml-1 text-base font-normal text-muted-foreground">von {count}</span>}
         </p>
-        <p className="mt-1 text-xs text-muted-foreground">
-          {activeComp.percentile != null ? `Perzentil ${fmt(activeComp.percentile, 0)}` : "Stand " + (activeComp.period ?? "–")}
-        </p>
+        {activeComp.percentile != null && (
+          <div className="mt-2.5">
+            <div className="bp-scale">
+              <div
+                className="bp-scale-fill"
+                style={{
+                  width: `${Math.max(2, Math.min(100, activeComp.percentile))}%`,
+                  backgroundColor: categoryColor(activeComp.category),
+                }}
+              />
+              <span
+                className="bp-scale-marker"
+                style={{
+                  left: `${Math.max(0, Math.min(100, activeComp.percentile))}%`,
+                  backgroundColor: categoryColor(activeComp.category),
+                }}
+              />
+            </div>
+            <div className="mt-1 flex items-center justify-between text-[11px] text-muted-foreground">
+              <span>0</span>
+              <span>Perzentil {fmt(activeComp.percentile, 0)}</span>
+              <span>100</span>
+            </div>
+          </div>
+        )}
+        {activeComp.percentile == null && (
+          <p className="mt-1 text-xs text-muted-foreground">Stand {activeComp.period ?? "–"}</p>
+        )}
       </div>
       <div className="border-t pt-3">
         <p className="text-xs font-medium text-muted-foreground">Richtung</p>
@@ -503,6 +585,7 @@ function trendOption(
   deSeries: { data?: { series: Array<{ period: number; value: number }> } },
   region: Region,
   unit: string,
+  color = "#1c6db0",
 ): Record<string, unknown> {
   const de = deSeries?.data?.series ?? []
   const reg = regionSeries?.data?.series ?? []
@@ -532,8 +615,8 @@ function trendOption(
         symbol: "circle",
         showSymbol: showPoints,
         connectNulls: false,
-        lineStyle: { color: "#1c6db0", width: 2.5 },
-        itemStyle: { color: "#1c6db0" },
+        lineStyle: { color, width: 2.5 },
+        itemStyle: { color },
         emphasis: { focus: "series" },
         data: periods.map((p) => (regMap.has(p) ? regMap.get(p)! : null)),
       },
@@ -569,6 +652,7 @@ function comparisonOption(
   entries: Array<{ region_id: string; name: string; value: number }>,
   regionId: string,
   comp: Insight,
+  color = "#1c6db0",
 ): Record<string, unknown> {
   const sorted = [...entries].sort((a, b) => b.value - a.value)
   let shown = sorted
@@ -580,7 +664,7 @@ function comparisonOption(
   const bars = shown
     .map((e) => ({
       value: e.value,
-      itemStyle: { color: e.region_id === regionId ? "#1c6db0" : "#b3d2ef" },
+      itemStyle: { color: e.region_id === regionId ? color : "#dbe3ec" },
     }))
     .reverse()
 

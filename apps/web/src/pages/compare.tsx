@@ -297,7 +297,10 @@ function CompareStat({
   const up = pct != null && pct >= 0
   return (
     <button type="button" onClick={onClick} className="border-t pt-3 text-left transition-opacity hover:opacity-80">
-      <p className="truncate text-xs font-medium text-muted-foreground">{name}</p>
+      <p className="flex items-center gap-2 truncate text-xs font-medium text-muted-foreground">
+        <span aria-hidden="true" className="size-2 shrink-0 rounded-full" style={{ backgroundColor: color }} />
+        {name}
+      </p>
       <p className="mt-1.5 text-[30px] font-semibold leading-[34px] tabular-nums tracking-tight">
         {fmt(value)}
         {unit && <span className="ml-1 text-base font-normal text-muted-foreground">{unit}</span>}

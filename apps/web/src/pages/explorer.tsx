@@ -245,7 +245,11 @@ export function ExplorerPage() {
             <div>
               <DataTable
                 columns={[
-                  { key: "rank", header: order === "desc" ? "Rang (hoch)" : "Rang (niedrig)" },
+                  {
+                    key: "rank",
+                    header: order === "desc" ? "Rang (hoch)" : "Rang (niedrig)",
+                    render: (e: RankingRow) => <span className="font-medium tabular-nums">{e.rank}</span>,
+                  },
                   {
                     key: "name",
                     header: "Region",
@@ -261,9 +265,21 @@ export function ExplorerPage() {
                     header: "Perzentil",
                     align: "right",
                     render: (e: RankingRow) =>
-                      e.percentile === null
-                        ? "–"
-                        : new Intl.NumberFormat("de-DE", { maximumFractionDigits: 0 }).format(e.percentile),
+                      e.percentile === null ? (
+                        "–"
+                      ) : (
+                        <span className="flex items-center justify-end gap-2">
+                          <span className="bp-scale hidden w-20 sm:block">
+                            <span
+                              className="bp-scale-fill bg-primary/70"
+                              style={{ width: `${Math.max(2, Math.min(100, e.percentile))}%` }}
+                            />
+                          </span>
+                          <span className="tabular-nums">
+                            {new Intl.NumberFormat("de-DE", { maximumFractionDigits: 0 }).format(e.percentile)}
+                          </span>
+                        </span>
+                      ),
                   },
                 ]}
                 rows={rowsForTable}

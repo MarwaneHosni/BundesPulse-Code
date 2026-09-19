@@ -161,7 +161,11 @@ export function RankingsPage() {
           ) : (
             <DataTable
               columns={[
-                { key: "rank", header: order === "desc" ? "Rang (Wert ↓)" : "Rang (Wert ↑)" },
+                {
+                  key: "rank",
+                  header: order === "desc" ? "Rang (Wert ↓)" : "Rang (Wert ↑)",
+                  render: (e) => <span className="font-medium tabular-nums">{e.rank}</span>,
+                },
                 {
                   key: "name",
                   header: "Region",
@@ -177,9 +181,21 @@ export function RankingsPage() {
                   header: "Perzentil",
                   align: "right",
                   render: (e) =>
-                    e.percentile === null
-                      ? "–"
-                      : new Intl.NumberFormat("de-DE", { maximumFractionDigits: 0 }).format(e.percentile),
+                    e.percentile === null ? (
+                      "–"
+                    ) : (
+                      <span className="flex items-center justify-end gap-2">
+                        <span className="bp-scale hidden w-20 sm:block">
+                          <span
+                            className="bp-scale-fill bg-primary/70"
+                            style={{ width: `${Math.max(2, Math.min(100, e.percentile))}%` }}
+                          />
+                        </span>
+                        <span className="tabular-nums">
+                          {new Intl.NumberFormat("de-DE", { maximumFractionDigits: 0 }).format(e.percentile)}
+                        </span>
+                      </span>
+                    ),
                 },
               ]}
               rows={entries}

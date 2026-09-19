@@ -240,7 +240,7 @@ export function HomePage() {
               <span
                 aria-hidden="true"
                 className="grid size-8 shrink-0 place-items-center rounded-xl"
-                style={{ backgroundColor: "#12457E1f", color: "#12457E" }}
+                style={{ backgroundColor: "#8C14181f", color: "#8C1418" }}
               >
                 <MapIcon className="size-4" />
               </span>
@@ -255,14 +255,14 @@ export function HomePage() {
                   className="h-full"
                   style={{
                     width: `${(laender / Math.max(1, all.length)) * 100}%`,
-                    backgroundColor: "#12457E",
+                    backgroundColor: "#8C1418",
                   }}
                 />
                 <span
                   className="h-full"
                   style={{
                     width: `${(kreise / Math.max(1, all.length)) * 100}%`,
-                    backgroundColor: "#12457E66",
+                    backgroundColor: "#8C141866",
                   }}
                 />
               </div>
@@ -283,7 +283,7 @@ export function HomePage() {
               <span
                 aria-hidden="true"
                 className="grid size-8 shrink-0 place-items-center rounded-xl"
-                style={{ backgroundColor: "#2E8B8B1f", color: "#2E8B8B" }}
+                style={{ backgroundColor: "#3F6B4F1f", color: "#3F6B4F" }}
               >
                 <LineChart className="size-4" />
               </span>
@@ -317,7 +317,7 @@ export function HomePage() {
               <span
                 aria-hidden="true"
                 className="grid size-8 shrink-0 place-items-center rounded-xl"
-                style={{ backgroundColor: "#B8822E1f", color: "#B8822E" }}
+                style={{ backgroundColor: "#B8860B1f", color: "#B8860B" }}
               >
                 <Database className="size-4" />
               </span>
@@ -333,7 +333,7 @@ export function HomePage() {
                     key={i}
                     aria-hidden="true"
                     className="size-2.5 rounded-[3px]"
-                    style={{ backgroundColor: "#B8822E" }}
+                    style={{ backgroundColor: "#B8860B" }}
                   />
                 ))}
               </div>
@@ -352,7 +352,7 @@ export function HomePage() {
               <span
                 aria-hidden="true"
                 className="grid size-8 shrink-0 place-items-center rounded-xl"
-                style={{ backgroundColor: "#5A6A8A1f", color: "#5A6A8A" }}
+                style={{ backgroundColor: "#4A4A4A1f", color: "#4A4A4A" }}
               >
                 <CalendarDays className="size-4" />
               </span>
@@ -369,7 +369,7 @@ export function HomePage() {
                 <span className="relative h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
                   <span
                     className="absolute inset-0 h-full"
-                    style={{ backgroundColor: "#5A6A8A" }}
+                    style={{ backgroundColor: "#4A4A4A" }}
                   />
                 </span>
                 <span className="text-[10px] tabular-nums text-muted-foreground">

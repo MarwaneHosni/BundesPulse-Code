@@ -83,7 +83,7 @@ export function RelationshipsPage() {
         {
           type: "scatter",
           symbolSize: points.length > 60 ? 6 : 10,
-          itemStyle: { color: "#1c6db0", opacity: 0.85 },
+          itemStyle: { color: "#8C1418", opacity: 0.85 },
           data: points.map((p) => ({
             name: p.name,
             regionId: p.region_id,
@@ -92,7 +92,7 @@ export function RelationshipsPage() {
           markLine: {
             silent: true,
             symbol: "none",
-            lineStyle: { color: "rgba(100,116,139,0.5)", type: "dashed" as const },
+            lineStyle: { color: "rgba(120,104,80,0.5)", type: "dashed" as const },
             data: [
               { type: "average", name: "Mittel (x)" },
               { type: "average", name: "Mittel (y)", valueIndex: 1 },

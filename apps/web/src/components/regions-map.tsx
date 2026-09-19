@@ -4,21 +4,21 @@ import { useEffect, useMemo, useRef } from "react"
 import type { RegionGeoJson } from "@/lib/api"
 
 /**
- * Sequential blue ramp. Light = low, deep = high. Also used by the legend so
- * both stay perfectly in sync (single source of truth).
+ * Sequential gold→red ramp (schwarz–rot–gold). Light = low, deep = high. Also
+ * used by the legend so both stay perfectly in sync (single source of truth).
  */
 const RAMP = [
-  "#f0f6fd",
-  "#d6e6f7",
-  "#b3d2ef",
-  "#7fb3e1",
-  "#4a8fcf",
-  "#1c6db0",
-  "#0b4f8a",
+  "#fbf3dd",
+  "#f4e2ad",
+  "#eacd79",
+  "#dcae3e",
+  "#c67e2b",
+  "#a94a22",
+  "#82121a",
 ]
 
 /** Color for features without an observation. */
-const NO_DATA_FILL = "#c7cdd6"
+const NO_DATA_FILL = "#cbc3b4"
 
 /** minimal structural type for the GeoJSON payload MapLibre accepts */
 interface GeoJsonLike {
@@ -131,7 +131,7 @@ export function RegionsMap({
             type: "fill",
             source: "regions",
             paint: {
-              "fill-color": "#0f2a52",
+              "fill-color": "#4A1E14",
               "fill-opacity": [
                 "case",
                 ["boolean", ["feature-state", "hover"], false],
@@ -338,7 +338,7 @@ export function MapLegend({
             className="size-3 rounded-[3px] border border-border"
             style={{
               backgroundImage:
-                "repeating-linear-gradient(45deg, #c7cdd6 0 2px, #e3e8ef 2px 4px)",
+                "repeating-linear-gradient(45deg, #cbc3b4 0 2px, #e7e0d2 2px 4px)",
             }}
           />
           keine Daten{missingCount != null ? ` (${missingCount})` : ""}

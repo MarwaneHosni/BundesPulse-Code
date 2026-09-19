@@ -10,90 +10,90 @@
   :root {
     color-scheme: light;
 
-    /* UI palette: paper / surface / ink / muted-ink / line / accent */
-    --background: 0 0% 100%;
-    --foreground: 222 47% 11%;
+    /* UI palette: warm paper / white surface / ink / muted-ink / line / red-gold accent */
+    --background: 40 55% 96%;
+    --foreground: 24 18% 9%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 24 18% 9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover-foreground: 24 18% 9%;
 
-    --primary: 211 75% 28%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 356 81% 38%;
+    --primary-foreground: 43 100% 96%;
 
-    --secondary: 210 29% 96%;
-    --secondary-foreground: 222 47% 11%;
+    --secondary: 40 36% 93%;
+    --secondary-foreground: 24 18% 9%;
 
-    --muted: 210 29% 96%;
-    --muted-foreground: 216 11% 40%;
+    --muted: 40 30% 93%;
+    --muted-foreground: 34 12% 37%;
 
-    --accent: 210 47% 95%;
-    --accent-foreground: 211 75% 28%;
+    --accent: 43 72% 88%;
+    --accent-foreground: 30 84% 28%;
 
-    --destructive: 4 76% 40%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 350 65% 30%;
+    --destructive-foreground: 43 100% 96%;
 
-    --border: 214 28% 87%;
-    --input: 214 28% 87%;
-    --ring: 211 75% 28%;
+    --border: 38 28% 85%;
+    --input: 38 28% 85%;
+    --ring: 356 81% 38%;
 
     --radius: 0.375rem;
 
-    /* Data palette (colour-blind safe) — available to inline styles / legends */
-    --data-seq-1: #f0f6fd;
-    --data-seq-2: #d6e6f7;
-    --data-seq-3: #b3d2ef;
-    --data-seq-4: #7fb3e1;
-    --data-seq-5: #4a8fcf;
-    --data-seq-6: #1c6db0;
-    --data-seq-7: #0b4f8a;
-    --data-div-low-3: #b35806;
-    --data-div-low-2: #e08214;
-    --data-div-low-1: #fdb863;
-    --data-div-mid: #f7f7f7;
-    --data-div-high-1: #b8d6ee;
-    --data-div-high-2: #6fa8d6;
-    --data-div-high-3: #2166ac;
-    --data-no: #c7cdd6;
-    --data-grid: #e3e8ef;
-    --data-label: #5b6472;
+    /* Data palette (German warm ramp, colour-blind safe) — inline styles / legends */
+    --data-seq-1: #fbf3dd;
+    --data-seq-2: #f4e2ad;
+    --data-seq-3: #eacd79;
+    --data-seq-4: #dcae3e;
+    --data-seq-5: #c67e2b;
+    --data-seq-6: #a94a22;
+    --data-seq-7: #82121a;
+    --data-div-low-3: #8c5a00;
+    --data-div-low-2: #c78a1e;
+    --data-div-low-1: #ebc66f;
+    --data-div-mid: #f4efe4;
+    --data-div-high-1: #e7a79a;
+    --data-div-high-2: #c4573f;
+    --data-div-high-3: #8c1418;
+    --data-no: #cbc3b4;
+    --data-grid: #e7e0d2;
+    --data-label: #6b6154;
   }
 
   @media (prefers-color-scheme: dark) {
     :root {
       color-scheme: dark;
 
-      --background: 210 29% 6%;
-      --foreground: 213 27% 92%;
+      --background: 30 9% 7%;
+      --foreground: 40 28% 89%;
 
-      --card: 214 29% 10%;
-      --card-foreground: 213 27% 92%;
-      --popover: 214 29% 10%;
-      --popover-foreground: 213 27% 92%;
+      --card: 30 13% 10%;
+      --card-foreground: 40 28% 89%;
+      --popover: 30 13% 10%;
+      --popover-foreground: 40 28% 89%;
 
-      --primary: 208 79% 69%;
-      --primary-foreground: 210 29% 6%;
+      --primary: 356 72% 66%;
+      --primary-foreground: 30 15% 10%;
 
-      --secondary: 214 24% 12%;
-      --secondary-foreground: 213 27% 92%;
+      --secondary: 30 12% 13%;
+      --secondary-foreground: 40 28% 89%;
 
-      --muted: 214 24% 12%;
-      --muted-foreground: 217 11% 65%;
+      --muted: 30 12% 13%;
+      --muted-foreground: 38 12% 61%;
 
-      --accent: 214 30% 15%;
-      --accent-foreground: 213 27% 92%;
+      --accent: 42 22% 14%;
+      --accent-foreground: 40 28% 89%;
 
-      --destructive: 4 92% 69%;
-      --destructive-foreground: 210 29% 6%;
+      --destructive: 356 78% 64%;
+      --destructive-foreground: 30 15% 10%;
 
-      --border: 215 24% 20%;
-      --input: 215 24% 20%;
-      --ring: 208 79% 69%;
+      --border: 37 15% 20%;
+      --input: 37 15% 20%;
+      --ring: 356 72% 66%;
 
-      --data-grid: #243040;
-      --data-label: #98a2b3;
-      --data-no: #374151;
+      --data-grid: #2e2922;
+      --data-label: #a79e8e;
+      --data-no: #3e382f;
     }
   }
 
@@ -153,7 +153,7 @@
     font-size: 13px;
     color: hsl(var(--foreground));
     background: hsl(var(--popover));
-    box-shadow: 0 4px 14px rgb(15 23 42 / 0.12);
+    box-shadow: 0 4px 14px rgb(40 28 18 / 0.14);
   }
   .bp-popup .maplibregl-popup-tip {
     border-top-color: hsl(var(--popover));
@@ -199,6 +199,6 @@
     margin: -6px 0 0 -6px;
     border-radius: 9999px;
     border: 2px solid hsl(var(--background));
-    box-shadow: 0 0 0 1px rgb(15 23 42 / 0.12);
+    box-shadow: 0 0 0 1px rgb(40 28 18 / 0.16);
   }
 }

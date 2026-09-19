@@ -65,43 +65,49 @@ theme/palette values and `className` strings.
 
 ## 3. Proposed visual direction
 
-**A civic instrument.** The data is the star: paper-white ground, ink text, one
-deep official blue as the only interactive accent, hairline rules doing the
-structuring (not cards), and a deliberate *figure* treatment as the single place
-of visual risk — large, tabular, tightly tracked numbers. Charts and the map
-share one data-colour system that is visibly separate from the UI chrome.
-Restrained, precise, trustworthy; nothing that reads as startup/marketing/AI.
+**A civic instrument.** The data is the star: warm paper ground, near-black ink,
+one deep flag red as the only interactive accent with gold as a secondary
+highlight, hairline rules doing the structuring (not cards), and a deliberate
+*figure* treatment as the single place of visual risk — large, tabular, tightly
+tracked numbers. Charts and the map share one data-colour system that is visibly
+separate from the UI chrome. Restrained, precise, trustworthy; nothing that reads
+as startup/marketing/AI.
 
 ---
 
 ## 4. Palette
 
+German civic palette — **schwarz–rot–gold**: warm paper, near-black ink, one
+deep flag red as the sole interactive accent and gold reserved for highlights.
+
 ### Base UI (6 values)
 | Token | Hex | Use | Rationale |
 |---|---|---|---|
-| **paper** | `#FFFFFF` | page background | document white, max figure legibility |
-| **surface** | `#F2F4F7` | panels, table stripes, map backdrop | cool neutral, deliberately not cream |
-| **ink** | `#0F172A` | primary text, axes | near-black, cool cast, AAA |
-| **muted-ink** | `#5B6472` | captions, sources, secondary | 4.9:1 on paper (AA) |
-| **line** | `#D7DCE4` | borders, rules, gridlines | quiet structure |
-| **accent** | `#12457E` | links, focus, active control, selected region | one deep official blue, 8:1 on paper |
+| **paper** | `#FBF8F1` | page background | warm document paper |
+| **surface** | `#F1EBDF` | panels, table stripes, map backdrop | warm neutral |
+| **ink** | `#1A1512` | primary text, axes | near-black, warm cast, AAA |
+| **muted-ink** | `#6B6154` | captions, sources, secondary | AA on paper |
+| **line** | `#E4DCCB` | borders, rules, gridlines | quiet, warm structure |
+| **accent (red)** | `#B0121B` | links, focus, active control, selected region | German flag red, deepened for AA on paper |
+| **gold** | `#C9A227` | highlights, badges, legend accents | German flag gold, secondary accent |
 
-Derived: `--accent-weak #EAF1F9` (hover/selection), `--destructive #B42318`.
+Derived: `--accent-weak #F7E9BE` (hover/selection), `--destructive #7A1418`.
 Radius `--radius: 0.375rem` (6px).
 
 ### Data palette (separate from UI; colour-blind safe)
-- **Sequential (map/chart), 7 steps:** `#F0F6FD #D6E6F7 #B3D2EF #7FB3E1 #4A8FCF #1C6DB0 #0B4F8A`.
-- **Sequential, dark mode, 7 steps:** `#3B4A5A #3E6C93 #3F8FBB #46B0C9 #6FCB9F #B6DE6C #F2D45C`.
+- **Sequential (map/chart), 7 steps:** `#FBF3DD #F4E2AD #EACD79 #DCAE3E #C67E2B #A94A22 #82121A`
+  (gold → deep red).
+- **Sequential, dark mode, 7 steps:** `#4A1A16 #6B2A1B #8F4220 #B5672C #D08F3C #E7B65E #F6D98A`.
 - **Diverging “vs. Deutschland”, 7 steps (neutral midpoint at the national value):**
-  `#B35806 #E08214 #FDB863 #F7F7F7 #B8D6EE #6FA8D6 #2166AC`.
-- **Qualitative (categories, compared regions), ≤8:** Dark2
-  `#1B9E77 #D95F02 #7570B3 #E7298A #66A61E #E6AB02 #A6761D #666666`.
-- **No data:** light `#C7CDD6`, dark `#374151`, drawn with a 45° hatch
+  `#8C5A00 #C78A1E #EBC66F #F4EFE4 #E7A79A #C4573F #8C1418`.
+- **Qualitative (categories, compared regions), ≤8:**
+  `#8C1418 #C67E2B #3F6B4F #7A4A6B #2E6E68 #A5541E #6E7A2E #4A4A4A`.
+- **No data:** light `#CBC3B4`, dark `#3E382F`, drawn with a 45° hatch
   (`repeating-linear-gradient`), always present in legends.
 
-Rationale: single-hue blue is safest for red-green CVD; blue↔orange is the most
-robust diverging pair; Dark2 stays distinguishable at small sizes. Meaning is
-never hue-only — class breaks, labels and the hatch carry it too.
+Rationale: the warm gold↔red ramp keeps the flag identity while staying safe for
+red-green CVD; meaning is never hue-only — class breaks, labels and the hatch
+carry it too.
 
 ## 5. Typography
 
@@ -144,14 +150,14 @@ tell.
 
 ## 9. Borders
 
-Hairlines (`--line #D7DCE4`, 1px) are the primary structuring device: section
+Hairlines (`--line #E4DCCB`, 1px) are the primary structuring device: section
 top rules, table header/row separators, filter-bar rule, footer rule. Panels that
 truly need a boundary get a 1px border with no shadow.
 
 ## 10. Shadows
 
 Only two uses: (a) overlay surfaces that float above content (map popup, select
-dropdown menu) get one soft shadow (`0 4px 14px rgb(15 23 42 / .12)`);
+dropdown menu) get one soft shadow (`0 4px 14px rgb(40 28 18 / .14)`);
 (b) none anywhere else. Cards/stat blocks lose `shadow`/`shadow-sm` entirely.
 
 ## 11. Charts (ECharts)
@@ -162,17 +168,17 @@ already live — no component change):
 - Tooltip: paper surface, 1px `--line`, 6px radius, soft shadow, `de-DE`
   formatting (unchanged logic).
 - Series colours from the data palette: single-series = sequential end
-  `#1C6DB0`; region-vs-DE = accent + `--muted-ink` reference line; multi-region =
-  qualitative Dark2, one stable colour per region across the page.
+  `#8C1418`; region-vs-DE = accent + `--muted-ink` reference line; multi-region =
+  qualitative German-warm set, one stable colour per region across the page.
 - No decorative gradients, no 3D, no default-theme fonts.
 
 ## 12. Maps (MapLibre)
 
 - Light: backdrop `--surface`; outlines white 0.6px; fill = sequential ramp;
-  hover = `#0F2A52` at ~16% overlay; no-data = `#C7CDD6` hatch.
-- Dark: backdrop `#0B0F14`; outlines `#243040`; fill = dark sequential ramp;
-  hover light overlay; no-data `#374151` hatch.
-- Popup (`.bp-popup`): themed for both modes — paper/ink in light, `#121821`/`#E6EAF0`
+  hover = `#4A1E14` at ~16% overlay; no-data = `#CBC3B4` hatch.
+- Dark: backdrop `#141210`; outlines `#3E382F`; fill = dark sequential ramp;
+  hover light overlay; no-data `#3E382F` hatch.
+- Popup (`.bp-popup`): themed for both modes — paper/ink in light, `#1E1B17`/`#EDE7DB`
   in dark; 6px radius; soft shadow; tabular figures; rank line in `--muted-ink`.
 - Legend: uses the same ramp/hatch; no-data swatch always shown when present.
 
@@ -186,8 +192,8 @@ no zebra stripes (rules suffice); container overflow unchanged.
 ## 14. Dark mode
 
 Designed, not inverted. Surface hierarchy via tint
-(`#0B0F14` page / `#121821` panel / `#161C24` raised), `--line #243040`,
-`--ink #E6EAF0`, `--muted-ink #98A2B3`, `--accent #6FB0F0` (AA on dark). Map and
+(`#141210` page / `#1E1B17` panel / `#26221D` raised), `--line #3A342B`,
+`--ink #EDE7DB`, `--muted-ink #A79E8E`, `--accent #E06A6A` (AA on dark). Map and
 chart ramps use the dark sequential set; popups/legends/tooltips re-themed;
 images/borders lifted for contrast. `color-scheme: dark` set on `.dark`.
 

@@ -119,8 +119,8 @@ export function ExplorerPage() {
         {
           type: "bar",
           data: top.map((e) => e.value).reverse(),
-          itemStyle: { color: "#1c6db0" },
-          label: { show: true, position: "right", color: "#64748b", fontSize: 11, formatter: (p: { value: number }) => fmtN.format(p.value) },
+          itemStyle: { color: "#8C1418" },
+          label: { show: true, position: "right", color: "#6b6154", fontSize: 11, formatter: (p: { value: number }) => fmtN.format(p.value) },
         },
       ],
     }

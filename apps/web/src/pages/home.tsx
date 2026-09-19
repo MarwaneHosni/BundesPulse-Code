@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom"
 import {
   Activity,
+  ArrowUpRight,
   Award,
   Briefcase,
   CalendarDays,
@@ -32,6 +33,8 @@ import {
   useRegions,
 } from "@/lib/queries"
 import type { Indicator } from "@/lib/api"
+import { categoryColor, categoryTint } from "@/lib/category-colors"
+import { cn } from "@/lib/utils"
 
 const CATEGORY_ICON: Record<string, typeof LineChart> = {
   Demography: Users,
@@ -59,6 +62,8 @@ function fmt(n: number | null | undefined): string {
   if (n === null || n === undefined) return "–"
   return new Intl.NumberFormat("de-DE", { maximumFractionDigits: 2 }).format(n)
 }
+
+const fmtInt = new Intl.NumberFormat("de-DE", { maximumFractionDigits: 0 })
 
 function groupByCategory(indicators: Indicator[]): Array<[string, Indicator[]]> {
   const m = new Map<string, Indicator[]>()
@@ -100,8 +105,6 @@ export function HomePage() {
   const inds = indicators.data ?? []
   const byCategory = groupByCategory(inds)
   const byCount = [...byCategory].sort((a, b) => b[1].length - a[1].length)
-  const topCategories = byCount.slice(0, 6)
-  const maxCategory = topCategories.length ? topCategories[0][1].length : 1
   const byAlpha = [...byCategory].sort((a, b) => a[0].localeCompare(b[0], "de"))
 
   const firstPeriods = inds.map((i) => i.first_period).filter((v): v is number => v != null)
@@ -302,32 +305,70 @@ export function HomePage() {
                 Rankings nicht verfügbar: {String(ranking.error).slice(0, 80)}
               </p>
             )}
-            <ol className="mt-1 divide-y divide-border">
-              {entries.map((e) => (
-                <li
-                  key={e.region_id}
-                  className="flex items-center gap-4 py-3 transition-colors hover:bg-muted/40"
-                >
-                  <span className="w-8 shrink-0 font-display text-xl font-semibold tabular-nums text-muted-foreground">
-                    {e.rank}
-                  </span>
-                  <Link
-                    to={`/region/${e.region_id}`}
-                    className="min-w-0 flex-1 truncate font-medium hover:underline"
-                  >
-                    {e.name}
-                  </Link>
-                  <span className="hidden h-1.5 w-28 overflow-hidden rounded-full bg-muted sm:block">
-                    <span
-                      className="block h-full rounded-full bg-primary/70"
-                      style={{ width: `${barPct(e.value)}%` }}
-                    />
-                  </span>
-                  <span className="w-16 shrink-0 text-right tabular-nums text-muted-foreground">
-                    {fmt(e.value)} %
-                  </span>
-                </li>
-              ))}
+            <div className="mt-4 flex items-center justify-between gap-4 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              <span>niedriger ist besser</span>
+              <span>Quote in %</span>
+            </div>
+            <ol className="mt-2 space-y-1">
+              {entries.map((e, i) => {
+                const top = i === 0
+                return (
+                  <li key={e.region_id}>
+                    <Link
+                      to={`/region/${e.region_id}`}
+                      className={cn(
+                        "group grid grid-cols-[2.5rem_1fr_auto] items-center gap-4 rounded-xl px-2 py-2.5 transition-colors",
+                        top ? "bg-primary/[0.06]" : "hover:bg-muted/50",
+                      )}
+                    >
+                      <span
+                        aria-hidden="true"
+                        className={cn(
+                          "grid size-10 place-items-center rounded-xl border font-display text-sm font-semibold tabular-nums",
+                          i === 0
+                            ? "border-transparent bg-primary text-primary-foreground"
+                            : i < 3
+                              ? "border-primary/25 bg-primary/10 text-primary"
+                              : "border-border bg-muted/50 text-muted-foreground",
+                        )}
+                      >
+                        {e.rank}
+                      </span>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="truncate text-sm font-medium group-hover:underline">
+                            {e.name}
+                          </span>
+                          <ArrowUpRight
+                            className="size-3.5 shrink-0 text-primary opacity-0 transition-opacity group-hover:opacity-100"
+                            aria-hidden="true"
+                          />
+                        </div>
+                        <span className="mt-2 block h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                          <span
+                            className={cn(
+                              "block h-full rounded-full",
+                              top ? "bg-primary" : "bg-primary/55",
+                            )}
+                            style={{ width: `${barPct(e.value)}%` }}
+                          />
+                        </span>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-display text-lg font-semibold leading-none tabular-nums">
+                          {fmt(e.value)}
+                          <span className="ml-0.5 text-xs font-normal text-muted-foreground">%</span>
+                        </div>
+                        {e.percentile != null && (
+                          <div className="mt-1.5 text-[11px] tabular-nums text-muted-foreground">
+                            besser als {fmtInt.format(Math.max(0, 100 - e.percentile))} %
+                          </div>
+                        )}
+                      </div>
+                    </Link>
+                  </li>
+                )
+              })}
             </ol>
             {entries.length > 0 && (
               <div className="mt-4">
@@ -354,25 +395,41 @@ export function HomePage() {
                 </p>
               </div>
             </div>
-            <ul className="mt-4 space-y-3">
-              {topCategories.map(([category, list]) => {
-                const Icon = categoryIcon(category)
-                return (
-                  <li key={category} className="flex items-center gap-3 text-sm">
-                    <Icon className="size-4 shrink-0 text-primary" aria-hidden="true" />
-                    <span className="w-28 shrink-0 truncate text-muted-foreground">{category}</span>
-                    <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
-                      <span
-                        className="block h-full rounded-full bg-primary/70"
-                        style={{ width: `${(list.length / maxCategory) * 100}%` }}
-                      />
-                    </span>
-                    <span className="w-6 shrink-0 text-right tabular-nums text-muted-foreground">
-                      {list.length}
-                    </span>
-                  </li>
-                )
-              })}
+            <div className="mt-5">
+              <div
+                className="flex h-3.5 w-full overflow-hidden rounded-full bg-muted"
+                role="img"
+                aria-label="Verteilung der Indikatoren nach Kategorie"
+              >
+                {byCount.map(([category, list]) => (
+                  <span
+                    key={category}
+                    title={`${category}: ${list.length}`}
+                    className="h-full transition-opacity hover:opacity-80"
+                    style={{
+                      width: `${(list.length / Math.max(1, inds.length)) * 100}%`,
+                      backgroundColor: categoryColor(category),
+                    }}
+                  />
+                ))}
+              </div>
+              <div className="mt-2 flex items-center justify-between text-[11px] tabular-nums text-muted-foreground">
+                <span>{byCategory.length} Kategorien</span>
+                <span>{inds.length} Indikatoren</span>
+              </div>
+            </div>
+            <ul className="mt-5 grid gap-x-8 gap-y-2.5 sm:grid-cols-2">
+              {byCount.map(([category, list]) => (
+                <li key={category} className="flex items-center gap-2.5 text-sm">
+                  <span
+                    aria-hidden="true"
+                    className="size-2.5 shrink-0 rounded-[3px]"
+                    style={{ backgroundColor: categoryColor(category) }}
+                  />
+                  <span className="min-w-0 flex-1 truncate text-muted-foreground">{category}</span>
+                  <span className="shrink-0 font-medium tabular-nums">{list.length}</span>
+                </li>
+              ))}
             </ul>
           </div>
         </section>
@@ -400,12 +457,14 @@ export function HomePage() {
           <div className="mt-6 divide-y divide-border border-t">
             {byAlpha.map(([category, list]) => {
               const Icon = categoryIcon(category)
+              const color = categoryColor(category)
               return (
                 <div key={category} className="grid gap-x-10 gap-y-3 py-5 sm:grid-cols-[12rem_1fr]">
                   <div className="flex items-center gap-2 sm:pt-0.5">
                     <span
                       aria-hidden="true"
-                      className="grid size-7 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"
+                      className="grid size-7 shrink-0 place-items-center rounded-xl"
+                      style={{ backgroundColor: categoryTint(category, 0.12), color }}
                     >
                       <Icon className="size-4" />
                     </span>
@@ -418,9 +477,14 @@ export function HomePage() {
                     {list.map((ind) => (
                       <li
                         key={ind.slug}
-                        className="flex items-baseline justify-between gap-3 py-0.5 text-sm"
+                        className="flex items-baseline gap-2 py-0.5 text-sm"
                       >
                         <span className="min-w-0 truncate">{ind.name}</span>
+                        <span
+                          aria-hidden="true"
+                          className="h-px min-w-4 flex-1 self-center border-b border-dotted"
+                          style={{ borderColor: categoryTint(category, 0.4) }}
+                        />
                         <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
                           {ind.latest_period ?? "–"}
                         </span>

@@ -7,6 +7,7 @@ import { Select } from "@/components/filters"
 import { RegionNavigation } from "@/components/region-navigation"
 import { useIndicators, useRegionNarratives, useRegionProfile, useRegionSeries, useRegions, useRankings, useSources } from "@/lib/queries"
 import type { Insight, RankingsResponse, Region, TrendItem } from "@/lib/api"
+import { categoryColor } from "@/lib/category-colors"
 import { cn } from "@/lib/utils"
 
 const LEVEL_LABEL: Record<string, string> = {
@@ -30,29 +31,6 @@ const UNIT_LABEL: Record<string, string> = {
 
 /** higher = worse */
 const NEGATIVE_DIRECTION = new Set(["unemp", "unemp_rate", "no2", "pm10", "traffic_accidents"])
-
-/** restrained, colour-blind-safe data hues per category (OECD-style accents). */
-const CATEGORY_COLOR: Record<string, string> = {
-  Demography: "#3E6FB0",
-  Labour: "#B8822E",
-  Employment: "#2E8B8B",
-  Economy: "#B4703A",
-  Income: "#6E8B3D",
-  Housing: "#8A5A9B",
-  Education: "#3F8F4E",
-  Environment: "#4E9A6B",
-  Agriculture: "#7E8A3B",
-  Industry: "#7A6A5A",
-  Mobility: "#8A5A9B",
-  Infrastructure: "#C05A2E",
-  Tourism: "#2E8B8B",
-  Health: "#C0555A",
-  "Public finance": "#5A6A8A",
-}
-
-function categoryColor(category?: string): string {
-  return (category && CATEGORY_COLOR[category]) || "#1c6db0"
-}
 
 /** indicators where "vs. Germany" is an intensity benchmark (per capita / rate). */
 const INTENSITY_SLUGS = new Set([

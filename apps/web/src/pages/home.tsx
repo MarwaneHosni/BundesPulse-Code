@@ -103,6 +103,18 @@ export function HomePage() {
           aria-hidden="true"
           className="pointer-events-none absolute -bottom-32 -left-24 size-80 rounded-full bg-muted"
         />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute right-24 top-10 size-40 rounded-full border border-primary/10"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute bottom-10 right-1/3 size-16 rounded-full bg-primary/[0.04]"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute right-10 bottom-6 size-6 rounded-full bg-primary/10"
+        />
         <div className="relative max-w-3xl">
           <span className="inline-flex items-center gap-2 rounded-full border bg-background/80 px-3 py-1 text-xs font-medium text-muted-foreground">
             <span className="size-1.5 rounded-full bg-primary" aria-hidden="true" />
@@ -125,56 +137,88 @@ export function HomePage() {
 
       {/* stat ribbon */}
       <section className="mt-6 grid grid-cols-2 divide-y divide-border overflow-hidden rounded-3xl border bg-card sm:grid-cols-4 sm:divide-x sm:divide-y-0">
-        <div className="p-5">
-          <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-            <MapIcon className="size-3.5" aria-hidden="true" />
-            Regionen
+        <div className="relative overflow-hidden p-5">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -right-6 -top-8 size-24 rounded-full bg-primary/5"
+          />
+          <div className="relative">
+            <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+              <MapIcon className="size-3.5" aria-hidden="true" />
+              Regionen
+            </div>
+            <p className="mt-3 text-[28px] font-semibold leading-8 tabular-nums tracking-tight">
+              {regions.data?.length ?? "–"}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {laender} Länder · {kreise} Kreise
+            </p>
           </div>
-          <p className="mt-3 text-[28px] font-semibold leading-8 tabular-nums tracking-tight">
-            {regions.data?.length ?? "–"}
-          </p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            {laender} Länder · {kreise} Kreise
-          </p>
         </div>
-        <div className="p-5">
-          <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-            <LineChart className="size-3.5" aria-hidden="true" />
-            Indikatoren
+        <div className="relative overflow-hidden p-5">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -bottom-10 -left-8 size-28 rounded-full bg-muted"
+          />
+          <div className="relative">
+            <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+              <LineChart className="size-3.5" aria-hidden="true" />
+              Indikatoren
+            </div>
+            <p className="mt-3 text-[28px] font-semibold leading-8 tabular-nums tracking-tight">
+              {indicators.data?.length ?? "–"}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">in {byCategory.length} Kategorien</p>
           </div>
-          <p className="mt-3 text-[28px] font-semibold leading-8 tabular-nums tracking-tight">
-            {indicators.data?.length ?? "–"}
-          </p>
-          <p className="mt-1 text-xs text-muted-foreground">in {byCategory.length} Kategorien</p>
         </div>
-        <div className="p-5">
-          <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-            <Database className="size-3.5" aria-hidden="true" />
-            Quellen
+        <div className="relative overflow-hidden p-5">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -right-10 -bottom-8 size-24 rounded-full bg-primary/[0.06]"
+          />
+          <div className="relative">
+            <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+              <Database className="size-3.5" aria-hidden="true" />
+              Quellen
+            </div>
+            <p className="mt-3 text-[28px] font-semibold leading-8 tabular-nums tracking-tight">
+              {meta.data?.sources.length ?? "–"}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">amtliche Anbieter</p>
           </div>
-          <p className="mt-3 text-[28px] font-semibold leading-8 tabular-nums tracking-tight">
-            {meta.data?.sources.length ?? "–"}
-          </p>
-          <p className="mt-1 text-xs text-muted-foreground">amtliche Anbieter</p>
         </div>
-        <div className="p-5">
-          <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-            <CalendarDays className="size-3.5" aria-hidden="true" />
-            Snapshot
+        <div className="relative overflow-hidden p-5">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -right-8 -top-10 size-24 rounded-full border border-primary/15"
+          />
+          <div className="relative">
+            <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+              <CalendarDays className="size-3.5" aria-hidden="true" />
+              Snapshot
+            </div>
+            <p className="mt-3 text-[28px] font-semibold leading-8 tabular-nums tracking-tight">
+              {meta.data?.snapshot.built_at_utc
+                ? new Date(meta.data.snapshot.built_at_utc).toLocaleDateString("de-DE")
+                : "–"}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">unveränderlich</p>
           </div>
-          <p className="mt-3 text-[28px] font-semibold leading-8 tabular-nums tracking-tight">
-            {meta.data?.snapshot.built_at_utc
-              ? new Date(meta.data.snapshot.built_at_utc).toLocaleDateString("de-DE")
-              : "–"}
-          </p>
-          <p className="mt-1 text-xs text-muted-foreground">unveränderlich</p>
         </div>
       </section>
 
       {/* feature columns */}
-      <section className="mt-12 grid gap-x-12 gap-y-12 lg:grid-cols-[1.15fr_1fr]">
+      <section className="relative mt-12 grid gap-x-12 gap-y-12 lg:grid-cols-[1.15fr_1fr]">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-6 -top-8 size-40 rounded-full border border-primary/10"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute right-24 top-16 size-10 rounded-full bg-primary/[0.05]"
+        />
         {/* labour-market leaderboard */}
-        <div>
+        <div className="relative">
           <div className="flex items-center gap-3 border-b pb-3">
             <Award className="size-4 text-primary" aria-hidden="true" />
             <div>
@@ -229,7 +273,7 @@ export function HomePage() {
         </div>
 
         {/* category composition */}
-        <div>
+        <div className="relative">
           <div className="flex items-center gap-3 border-b pb-3">
             <LineChart className="size-4 text-primary" aria-hidden="true" />
             <div>

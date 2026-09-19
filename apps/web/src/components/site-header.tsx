@@ -1,9 +1,9 @@
-import { Link } from "react-router-dom"
+import { Link, NavLink } from "react-router-dom"
 import { useHealth } from "@/lib/queries"
 import { cn } from "@/lib/utils"
 
-const NAV_ITEMS: { label: string; to: string }[] = [
-  { label: "Explore", to: "/explore" },
+const NAV_ITEMS: { label: string; to: string; end?: boolean }[] = [
+  { label: "Explore", to: "/explore", end: true },
   { label: "Compare", to: "/compare" },
   { label: "Rankings", to: "/rankings" },
   { label: "Data", to: "/explorer" },
@@ -20,13 +20,21 @@ export function SiteHeader() {
         </a>
         <nav className="flex gap-1 overflow-x-auto" aria-label="Hauptnavigation">
           {NAV_ITEMS.map((item) => (
-            <Link
+            <NavLink
               key={item.to}
               to={item.to}
-              className="whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+              end={item.end}
+              className={({ isActive }) =>
+                cn(
+                  "whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                  isActive
+                    ? "bg-accent text-accent-foreground"
+                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                )
+              }
             >
               {item.label}
-            </Link>
+            </NavLink>
           ))}
           <Link
             to="/methodology"

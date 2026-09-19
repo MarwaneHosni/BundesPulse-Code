@@ -41,6 +41,7 @@ export interface Indicator {
   latest_period: number | null
   observation_count: number
   regions_with_data: number
+  source_ids: number[]
 }
 
 export interface Source {
@@ -95,6 +96,16 @@ export interface RegionProfile {
   region: Region
   kpis: Insight[]
   trends: TrendItem[]
+}
+
+export interface NarrativeStatement {
+  id: string
+  text: string
+}
+
+export interface RegionNarratives {
+  region_id: string
+  statements: NarrativeStatement[]
 }
 
 export interface RegionIndicatorSeries {
@@ -224,6 +235,10 @@ export async function fetchIndicators(): Promise<Indicator[]> {
 
 export async function fetchRegionProfile(regionId: string): Promise<RegionProfile> {
   return getJson<RegionProfile>(`/regions/${regionId}/profile`)
+}
+
+export async function fetchRegionNarratives(regionId: string): Promise<RegionNarratives> {
+  return getJson<RegionNarratives>(`/regions/${regionId}/narratives`)
 }
 
 export async function fetchRegionInsights(regionId: string): Promise<Insight[]> {

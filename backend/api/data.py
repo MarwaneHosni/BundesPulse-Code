@@ -20,18 +20,21 @@ from backend.api.schemas import (
     Indicator,
     Insight,
     MetadataResponse,
+    NarrativeStatement,
     PeriodsResponse,
     RankingRow,
     RankingsResponse,
     Region,
     RegionIndicatorSeries,
+    RegionNarratives,
     RegionProfile,
     SeriesPoint,
     Source,
     TrendItem,
 )
 from backend.config import REPO_ROOT, settings
-from backend.db import SnapshotUnavailableError, get_connection
+from backend.db import SnapshotUnavailableError, get_connection, select_rows
+from backend.insights.engine import build_narratives
 
 router = APIRouter(tags=["data"])
 
@@ -49,10 +52,8 @@ def _conn():
 
 
 def _fetch(conn, sql: str, params: list | None = None) -> list[dict]:
-    """Run a SELECT and return rows as dicts (column names from the cursor)."""
-    cur = conn.execute(sql, params or [])
-    columns = [c[0] for c in cur.description]
-    return [dict(zip(columns, row)) for row in cur.fetchall()]
+    """Run a SELECT and return rows as dicts (thread-safe, via db.select_rows)."""
+    return select_rows(conn, sql, params)
 
 
 def _fetch_one(conn, sql: str, params: list | None = None) -> dict | None:
@@ -89,7 +90,8 @@ def _indicator_models(conn) -> list[Indicator]:
                i.raw_or_derived, MIN(o.period) AS first_period,
                MAX(o.period) AS latest_period, COUNT(o.value) AS observation_count,
                COUNT(DISTINCT o.region_id) AS regions_with_data,
-               GROUP_CONCAT(DISTINCT r.type) AS levels
+               GROUP_CONCAT(DISTINCT r.type) AS levels,
+               GROUP_CONCAT(DISTINCT o.source_id) AS source_ids
         FROM indicators i
         LEFT JOIN observations o ON o.indicator_id = i.indicator_id
         LEFT JOIN regions r ON r.region_id = o.region_id
@@ -100,6 +102,8 @@ def _indicator_models(conn) -> list[Indicator]:
     out = []
     for d in rows:
         d["levels"] = sorted(d["levels"].split(",")) if d["levels"] else []
+        raw_ids = d["source_ids"] or ""
+        d["source_ids"] = sorted({int(x) for x in raw_ids.split(",") if x})
         out.append(Indicator.model_validate(d))
     return out
 
@@ -210,6 +214,18 @@ def region_insights(region_id: str) -> list[Insight]:
     conn = _conn()
     _region_row(conn, region_id)
     return [Insight(**r) for r in _insight_rows(conn, region_id)]
+
+
+@router.get("/regions/{region_id}/narratives", response_model=RegionNarratives)
+def region_narratives(region_id: str) -> RegionNarratives:
+    """Rule-based analytical statements for a region (generated from the snapshot)."""
+    conn = _conn()
+    region = _region_row(conn, region_id)
+    statements = build_narratives(conn, region)
+    return RegionNarratives(
+        region_id=region_id,
+        statements=[NarrativeStatement(id=s["id"], text=s["text"]) for s in statements],
+    )
 
 
 @router.get(

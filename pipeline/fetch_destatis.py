@@ -43,12 +43,27 @@ OUT_DIR = Path(
 
 # "Statistischer Bericht Bevoelkerungsfortschreibung (Zensus 2022)" - table 12411.
 REPORTS = {
+    "bev_2022": {
+        "url": "https://www.destatis.de/DE/Themen/Gesellschaft-Umwelt/Bevoelkerung/"
+        "Bevoelkerungsstand/Publikationen/Downloads-Bevoelkerungsstand/"
+        "statistischer-bericht-bevoelkerungsfortschreibung-zensus-2022-jaehrlich-"
+        "5124108227005.xlsx?__blob=publicationFile&v=4",
+        "file": "12411_bevoelkerung_2022.xlsx",
+        "year": 2022,
+        "source_id": 3,
+        "laender_sheet": "csv-12411-06",
+        "series_sheet": "csv-12411-02",
+    },
     "bev_2023": {
         "url": "https://www.destatis.de/DE/Themen/Gesellschaft-Umwelt/Bevoelkerung/"
         "Bevoelkerungsstand/Publikationen/Downloads-Bevoelkerungsstand/"
         "statistischer-bericht-bevoelkerungsfortschreibung-zensus-2022-jaehrlich-"
         "5124108237005.xlsx?__blob=publicationFile&v=4",
         "file": "12411_bevoelkerung_2023.xlsx",
+        "year": 2023,
+        "source_id": 1,
+        "laender_sheet": "csv-12411-08",
+        "series_sheet": "csv-12411-03",
     },
     "bev_2024": {
         "url": "https://www.destatis.de/DE/Themen/Gesellschaft-Umwelt/Bevoelkerung/"
@@ -56,6 +71,10 @@ REPORTS = {
         "statistischer-bericht-bevoelkerungsfortschreibung-zensus-2022-jaehrlich-"
         "5124108247005.xlsx?__blob=publicationFile&v=4",
         "file": "12411_bevoelkerung_2024.xlsx",
+        "year": 2024,
+        "source_id": 2,
+        "laender_sheet": "csv-12411-08",
+        "series_sheet": "csv-12411-03",
     },
 }
 
@@ -78,11 +97,18 @@ def download(url: str, dest: Path) -> None:
 def _row_dict(row: tuple) -> dict:
     """Map a bare-tuple row to a dict using column-position constants."""
     return {
-        # csv-12411-08: code, label, year, Bundesland, pop, growth, ... u18, ... 65+
+        # csv-12411-08: code, label, year, Bundesland, pop, growth,
+        # foreign share, women per 1000 men, mean age, youth/old dependency,
+        # ... age-group counts (u18 at 13, 65+ at 16)
         "year": _cell(row, 2),
         "region": _region_name(row, 3),
         "pop": _cell(row, 4),
         "growth": _cell(row, 5),
+        "foreign_share": _cell(row, 6),
+        "sex_ratio": _cell(row, 7),
+        "mean_age": _cell(row, 8),
+        "youth_dependency": _cell(row, 9),
+        "old_dependency": _cell(row, 10),
         "u18": _cell(row, 13),
         "g65": _cell(row, 16),
     }
@@ -147,24 +173,24 @@ def _region_to_id(name: str) -> str:
 def main() -> None:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    reports = {}  # key -> {"year","rows": {region_id: rec}, "series": [...]}
+    reports = {}  # key -> {"year","source_id","rows": {region_id: rec}, "series": [...]}
     for key, spec in REPORTS.items():
         raw_file = RAW_DIR / spec["file"]
         print(f"[{key}] download report ...")
         download(spec["url"], raw_file)
         wb = openpyxl.load_workbook(raw_file, read_only=True, data_only=True)
-        if "csv-12411-08" not in wb.sheetnames or "csv-12411-03" not in wb.sheetnames:
+        laender_sheet, series_sheet = spec["laender_sheet"], spec["series_sheet"]
+        if laender_sheet not in wb.sheetnames or series_sheet not in wb.sheetnames:
             raise FetchError(f"report {key}: unexpected sheet layout: {wb.sheetnames}")
-        laender = _parse_laender_rows(
-            wb["csv-12411-08"], berichtsjahr=2023 if key == "bev_2023" else 2024
-        )
-        series = _parse_deutschland_series(wb["csv-12411-03"])
+        laender = _parse_laender_rows(wb[laender_sheet], berichtsjahr=spec["year"])
+        series = _parse_deutschland_series(wb[series_sheet])
         wb.close()
         if not laender:
             raise FetchError(f"report {key}: no Bundesland rows found")
         by_region = {rec["region"]: rec for rec in laender}
         reports[key] = {
-            "year": 2023 if key == "bev_2023" else 2024,
+            "year": spec["year"],
+            "source_id": spec["source_id"],
             "rows": by_region,
             "series": series,
         }
@@ -221,6 +247,51 @@ def main() -> None:
             "Anteil der unter 18-Jährigen an der Bevölkerung (abgeleitet)",
             "derived",
         ),
+        (
+            17,
+            "pop_share_foreign",
+            "Ausländeranteil",
+            "Demography",
+            "percent",
+            "Anteil der ausländischen Bevölkerung (Destatis 12411)",
+            "raw",
+        ),
+        (
+            18,
+            "pop_mean_age",
+            "Durchschnittsalter",
+            "Demography",
+            "years",
+            "Durchschnittsalter der Bevölkerung (Destatis 12411)",
+            "raw",
+        ),
+        (
+            19,
+            "pop_sex_ratio",
+            "Frauen je 1 000 Männer",
+            "Demography",
+            "per 1000",
+            "Frauen je 1 000 Männer (Destatis 12411)",
+            "raw",
+        ),
+        (
+            20,
+            "pop_youth_dependency",
+            "Jugendquotient",
+            "Demography",
+            "percent",
+            "Bevölkerung unter 15 Jahren je 100 Personen von 15 bis unter 65 Jahren (Destatis 12411)",
+            "raw",
+        ),
+        (
+            21,
+            "pop_old_dependency",
+            "Altenquotient",
+            "Demography",
+            "percent",
+            "Bevölkerung ab 65 Jahren je 100 Personen von 15 bis unter 65 Jahren (Destatis 12411)",
+            "raw",
+        ),
     ]
 
     # ---- sources (one entry per downloaded report) ----
@@ -240,6 +311,13 @@ def main() -> None:
             REPORTS["bev_2024"]["url"],
             today,
         ),
+        (
+            3,
+            "Statistisches Bundesamt (Destatis)",
+            "Bevölkerungsfortschreibung 2022 (Statistischer Bericht 12411)",
+            REPORTS["bev_2022"]["url"],
+            today,
+        ),
     ]
 
     # ---- observations ----
@@ -250,8 +328,8 @@ def main() -> None:
             return
         obs.append((region, indicator_id, period, value, source_id))
 
-    for key, rep in reports.items():
-        year, rows, source_id = rep["year"], rep["rows"], 1 if key == "bev_2023" else 2
+    for rep in reports.values():
+        year, rows, source_id = rep["year"], rep["rows"], rep["source_id"]
         for region_name, rec in rows.items():
             region = _region_to_id(region_name)
             pop = _to_float(rec["pop"])
@@ -260,6 +338,11 @@ def main() -> None:
             g65 = _to_float(rec["g65"])
             add(region, 1, year, pop, source_id)
             add(region, 2, year, growth, source_id)
+            add(region, 17, year, _to_float(rec["foreign_share"]), source_id)
+            add(region, 18, year, _to_float(rec["mean_age"]), source_id)
+            add(region, 19, year, _to_float(rec["sex_ratio"]), source_id)
+            add(region, 20, year, _to_float(rec["youth_dependency"]), source_id)
+            add(region, 21, year, _to_float(rec["old_dependency"]), source_id)
             if pop:
                 add(
                     region,

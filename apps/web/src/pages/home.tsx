@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom"
 import { Badge } from "@/components/ui/badge"
 import {
   Card,
@@ -6,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { PageHeader } from "@/components/page-header"
 import { Kpi } from "@/components/kpi"
 import { useIndicators, useMetadata, useRankings, useRegions } from "@/lib/queries"
@@ -22,10 +24,15 @@ export function HomePage() {
   const ranking = useRankings("unemp_rate", { level: "kreis", order: "asc", limit: 5 })
 
   return (
-    <div className="container py-10">
+    <div className="container py-8">
       <PageHeader
         title="Deutschland Digital Monitor"
         description="Offene Regionaldaten für Deutschland: Bund, Bundesländer und Landkreise / kreisfreie Städte — erkunden, vergleichen, einordnen."
+        actions={
+          <Button asChild size="lg">
+            <Link to="/explore">Deutschlandkarte öffnen</Link>
+          </Button>
+        }
       />
 
       <section className="mb-10 flex flex-wrap gap-x-12 gap-y-6">
@@ -71,10 +78,7 @@ export function HomePage() {
               <tbody>
                 {(indicators.data ?? []).map((ind) => (
                   <tr key={ind.slug} className="border-t">
-                    <td className="py-1.5">
-                      <span className="font-medium">{ind.name}</span>{" "}
-                      <span className="text-xs text-muted-foreground">({ind.slug})</span>
-                    </td>
+                    <td className="py-1.5 font-medium">{ind.name}</td>
                     <td className="py-1.5">
                       <Badge variant="secondary">{ind.category}</Badge>
                     </td>
@@ -102,9 +106,9 @@ export function HomePage() {
               <ol className="space-y-1 text-sm">
                 {(ranking.data?.entries ?? []).map((e) => (
                   <li key={e.region_id} className="flex items-center justify-between border-t py-1.5">
-                    <span className="font-medium">
+                    <Link to={`/region/${e.region_id}`} className="font-medium hover:underline">
                       {e.rank}. {e.name}
-                    </span>
+                    </Link>
                     <span>{fmt(e.value)} %</span>
                   </li>
                 ))}

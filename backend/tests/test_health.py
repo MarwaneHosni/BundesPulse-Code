@@ -27,3 +27,9 @@ def test_health_is_read_only_helper(client: TestClient) -> None:
     """Sanity guard: only GET-style routes exist in the system namespace."""
     resp = client.post("/api/health")
     assert resp.status_code in (405, 404)
+
+
+def test_cors_allows_any_origin_for_get(client: TestClient) -> None:
+    """The read-only API must be directly readable from a separately hosted UI."""
+    resp = client.get("/api/health", headers={"Origin": "https://example.vercel.app"})
+    assert resp.headers.get("access-control-allow-origin") == "*"

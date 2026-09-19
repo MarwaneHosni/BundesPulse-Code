@@ -32,6 +32,10 @@ vi.mock("maplibre-gl", () => {
     remove = vi.fn()
     addControl = vi.fn(() => this)
     fitBounds = vi.fn()
+    isStyleLoaded = vi.fn(() => true)
+    setPaintProperty = vi.fn(() => this)
+    setFeatureState = vi.fn()
+    removeFeatureState = vi.fn()
     getCanvas = vi.fn(() => ({ getBoundingClientRect: () => ({ width: 640, height: 480 }) }))
     getSource = vi.fn(() => ({ setData: vi.fn() }))
   }

@@ -57,6 +57,13 @@ HEADERS = {"User-Agent": "Mozilla/5.0"}
 
 # global indicator ids: 1-4 = population (destatis), 5+ = labour market.
 ID_UNEMP, ID_UNEMP_RATE, ID_EMP = 5, 6, 7
+# additional labour-market detail (December 2025, per Kreis)
+ID_UNEMP_YOUTH, ID_UNEMP_YOUTH_RATE = 22, 23
+ID_UNEMP_OLDER, ID_UNEMP_OLDER_RATE = 24, 25
+ID_UNEMP_LONG_TERM = 26
+
+AL_MEMBER = "202512_Heft_pol_SGBI_Arbeitslose.xlsx"
+QUOTEN_MEMBER = "202512_Heft_pol_SGBI_ArbeitslosenQuoten.xlsx"
 
 
 def download(url: str, dest: Path) -> Path:
@@ -126,6 +133,48 @@ def _parse_arbeitslosen_heft(zip_path: Path, measure: str) -> dict[str, float]:
     return values
 
 
+def _parse_heft_sheet(zip_path: Path, member: str, sheet: str) -> dict[str, float]:
+    """Parse a demographic Heftpol sheet for the December-2025 value per Kreis.
+
+    The sheet lists the full hierarchy ``<code> <name>`` in column 0; the
+    five-digit rows are the Kreise (2-digit = Länder, 8-digit = Gemeinden).
+    Returns {AGS: value}.
+    """
+    zf = zipfile.ZipFile(zip_path)
+    wb = openpyxl.load_workbook(
+        io.BytesIO(zf.read(member)), read_only=True, data_only=True
+    )
+    ws = wb[sheet]
+    rows = list(ws.iter_rows(values_only=True))
+    wb.close()
+
+    header_idx = last_month_idx = None
+    for i, r in enumerate(rows):
+        for j, c in enumerate(r):
+            is_dec_2025 = (isinstance(c, _dt) and c.year == 2025 and c.month == 12) or (
+                isinstance(c, str) and c.strip().startswith("2025-12")
+            )
+            if is_dec_2025:
+                header_idx, last_month_idx = i, j
+                break
+        if header_idx is not None:
+            break
+    if header_idx is None:
+        raise RuntimeError(f"{member} / {sheet}: Dezember-2025 column not found")
+
+    values: dict[str, float] = {}
+    for r in rows[header_idx + 1 :]:
+        if not r or not r[0]:
+            continue
+        m = re.fullmatch(r"\s*(\d{5})\s+(.+)", str(r[0]).strip())
+        if not m:
+            continue
+        v = _as_float(r[last_month_idx]) if last_month_idx < len(r) else None
+        if v is not None:
+            values[m.group(1)] = v
+    return values
+
+
 def _parse_svb_laender(zip_path: Path) -> dict[str, float]:
     """Parse the 'Länder' sheet of the svB Gemeindedaten file (Arbeitsort)."""
     zf = zipfile.ZipFile(zip_path)
@@ -159,6 +208,18 @@ def main() -> None:
     quoten = _parse_arbeitslosen_heft(al_zip, "unemp_rate")
     kreis_names = _kreis_names(al_zip)
     print(f"  Kreise: arbeitslose={len(arbeitslose)} quoten={len(quoten)}")
+
+    print("- BA: Arbeitslosigkeit nach Personengruppen (Kreise, Dez. 2025)")
+    unemp_youth = _parse_heft_sheet(al_zip, AL_MEMBER, "AGR15u25")
+    unemp_youth_rate = _parse_heft_sheet(al_zip, QUOTEN_MEMBER, "AGR15u25")
+    unemp_older = _parse_heft_sheet(al_zip, AL_MEMBER, "AGR55u65")
+    unemp_older_rate = _parse_heft_sheet(al_zip, QUOTEN_MEMBER, "AGR55u65")
+    unemp_long_term = _parse_heft_sheet(al_zip, AL_MEMBER, "Langzeitarbeitslos")
+    print(
+        f"  youth={len(unemp_youth)} youth_rate={len(unemp_youth_rate)} "
+        f"older={len(unemp_older)} older_rate={len(unemp_older_rate)} "
+        f"longterm={len(unemp_long_term)}"
+    )
 
     print("- BA: svB Beschaeftigte (Laender, Jun. 2022)")
     svb_zip = download(SVB_URL, RAW_DIR / SVB_FILE)
@@ -194,6 +255,51 @@ def main() -> None:
             "svB am Arbeitsort (BA Beschäftigungsstatistik), Juni 2022",
             "raw",
         ),
+        (
+            ID_UNEMP_YOUTH,
+            "unemp_youth",
+            "Arbeitslose (15 bis unter 25 Jahre)",
+            "Employment",
+            "persons",
+            "Arbeitslose im Alter von 15 bis unter 25 Jahren (BA-Statistik), Dezember 2025",
+            "raw",
+        ),
+        (
+            ID_UNEMP_YOUTH_RATE,
+            "unemp_youth_rate",
+            "Arbeitslosenquote (15 bis unter 25 Jahre)",
+            "Employment",
+            "percent",
+            "Arbeitslosenquote der 15- bis unter 25-Jährigen, Dezember 2025",
+            "raw",
+        ),
+        (
+            ID_UNEMP_OLDER,
+            "unemp_older",
+            "Arbeitslose (55 bis unter 65 Jahre)",
+            "Employment",
+            "persons",
+            "Arbeitslose im Alter von 55 bis unter 65 Jahren (BA-Statistik), Dezember 2025",
+            "raw",
+        ),
+        (
+            ID_UNEMP_OLDER_RATE,
+            "unemp_older_rate",
+            "Arbeitslosenquote (55 bis unter 65 Jahre)",
+            "Employment",
+            "percent",
+            "Arbeitslosenquote der 55- bis unter 65-Jährigen, Dezember 2025",
+            "raw",
+        ),
+        (
+            ID_UNEMP_LONG_TERM,
+            "unemp_long_term",
+            "Langzeitarbeitslose",
+            "Employment",
+            "persons",
+            "Langzeitarbeitslose (BA-Statistik), Dezember 2025",
+            "raw",
+        ),
     ]
 
     sources = [
@@ -220,6 +326,16 @@ def main() -> None:
     for ags, val in quoten.items():
         if val is not None:
             obs.append((ags, ID_UNEMP_RATE, 2025, val, 1))
+    for ags, val in unemp_youth.items():
+        obs.append((ags, ID_UNEMP_YOUTH, 2025, val, 1))
+    for ags, val in unemp_youth_rate.items():
+        obs.append((ags, ID_UNEMP_YOUTH_RATE, 2025, val, 1))
+    for ags, val in unemp_older.items():
+        obs.append((ags, ID_UNEMP_OLDER, 2025, val, 1))
+    for ags, val in unemp_older_rate.items():
+        obs.append((ags, ID_UNEMP_OLDER_RATE, 2025, val, 1))
+    for ags, val in unemp_long_term.items():
+        obs.append((ags, ID_UNEMP_LONG_TERM, 2025, val, 1))
     for land_id, val in emp.items():
         if val is not None:
             obs.append((land_id, ID_EMP, 2022, val, 2))

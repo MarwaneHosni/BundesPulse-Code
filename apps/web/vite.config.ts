@@ -7,6 +7,12 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig({
   plugins: [react()],
+  // MapLibre GL references its own web worker via `new URL(..., import.meta.url)`.
+  // Vite's dependency optimizer cannot pre-bundle that worker, so exclude the
+  // package and let Vite serve it as native ESM (dev) / bundle it (build).
+  optimizeDeps: {
+    exclude: ["maplibre-gl"],
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

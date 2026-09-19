@@ -56,3 +56,29 @@
     @apply bg-background text-foreground antialiased;
   }
 }
+
+@layer components {
+  /* MapLibre popup used by the Explore choropleth. */
+  .bp-popup .maplibregl-popup-content {
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 13px;
+    color: #0f172a;
+    box-shadow: 0 4px 14px rgb(0 0 0 / 0.14);
+  }
+  .bp-popup .maplibregl-popup-tip {
+    border-top-color: #fff;
+    border-bottom-color: #fff;
+  }
+  .bp-popup strong {
+    font-weight: 600;
+  }
+  .bp-popup-rank {
+    display: block;
+    margin-top: 2px;
+    color: #64748b;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+}

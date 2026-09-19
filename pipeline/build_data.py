@@ -48,6 +48,7 @@ STAGE_DIRS = [
     "arbeitsagentur",
     "netzagentur",
     "umweltbundesamt",
+    "regionalatlas",
 ]
 
 # Final production snapshot produced by this build (only what the app needs).
@@ -507,13 +508,32 @@ def _write_regions_geojson(regions: pd.DataFrame, geometry: dict, areas: dict) -
     print(f"  regions.geojson: {len(features)} features -> {REGIONS_GEOJSON}")
 
 
+def _areas_from_geojson(path: Path) -> dict | None:
+    """Read ``region_id -> area_km2`` from a previously written regions.geojson.
+
+    The geography only changes when the region catalogue changes, so the
+    expensive Geopackage read/dissolve is skipped on rebuilds.
+    """
+    try:
+        with open(path, encoding="utf-8") as fh:
+            fc = json.load(fh)
+        areas = {
+            str(f["properties"]["region_id"]): f["properties"].get("area_km2")
+            for f in fc.get("features", [])
+            if f.get("properties", {}).get("region_id")
+        }
+        return areas or None
+    except (OSError, ValueError, KeyError) as err:
+        print(f"  WARNING: could not reuse cached regions.geojson ({err})")
+        return None
+
+
 # ---------------------------------------------------------------- derived metrics
 
 
 def _derived_frames(frames: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
     """Precompute the useful, expensive results the app reads at runtime."""
-    from backend.analytics.measures import percentage_change, rank_all
-    from backend.analytics.measures import percentile as pct_measure
+    from backend.analytics.measures import percentage_change
 
     obs = frames["observations"].sort_values(["region_id", "indicator_id", "period"])
     regions = frames["regions"]
@@ -560,41 +580,32 @@ def _derived_frames(frames: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
     )
 
     # ---- rankings (per indicator x period x level, only groups with >= 2 regions) ----
-    rows = []
-    for (indicator_id, period, level), group in obs.merge(
-        regions[["region_id", "type"]], on="region_id"
-    ).groupby(["indicator_id", "period", "type"], sort=False):
-        if len(group) < 2:
-            continue
-        vals = group["value"].tolist()
-        rd, ra = rank_all(vals, order="desc"), rank_all(vals, order="asc")
-        pc = [pct_measure(v, vals) for v in vals]
-        for (_, r), d, a, p in zip(group.iterrows(), rd, ra, pc):
-            rows.append(
-                {
-                    "indicator_id": int(indicator_id),
-                    "period": int(period),
-                    "level": level,
-                    "region_id": r["region_id"],
-                    "value": float(r["value"]),
-                    "rank_desc": d,
-                    "rank_asc": a,
-                    "percentile": None if p is None else round(float(p), 2),
-                }
-            )
-    rankings = pd.DataFrame(
-        rows,
-        columns=[
-            "indicator_id",
-            "period",
-            "level",
-            "region_id",
-            "value",
-            "rank_desc",
-            "rank_asc",
-            "percentile",
-        ],
+    # Vectorised: rank_desc/rank_asc use competition ranking (ties share the best
+    # rank, "1 2 2 4") which matches measures.rank(); percentile is the share of
+    # group values <= the value (matches measures.percentile()).
+    keys = ["indicator_id", "period", "type"]
+    ranked = obs.merge(regions[["region_id", "type"]], on="region_id")
+    ranked = ranked[ranked.groupby(keys)["value"].transform("size") >= 2].copy()
+    grouped = ranked.groupby(keys)["value"]
+    ranked["rank_desc"] = grouped.rank(method="min", ascending=False)
+    ranked["rank_asc"] = grouped.rank(method="min", ascending=True)
+    # percentile = share of group values <= value. rank(method="max", ascending=True)
+    # equals count(values <= v), so percentile = that rank / n * 100 (vectorised,
+    # identical to measures.percentile()).
+    ranked["percentile"] = (
+        grouped.rank(method="max", ascending=True) / grouped.transform("size") * 100.0
+    ).round(2)
+    rankings = (
+        ranked.rename(columns={"type": "level"})[
+            ["indicator_id", "period", "level", "region_id", "value", "rank_desc", "rank_asc", "percentile"]
+        ]
+        .reset_index(drop=True)
     )
+    rankings["indicator_id"] = rankings["indicator_id"].astype(int)
+    rankings["period"] = rankings["period"].astype(int)
+    rankings["value"] = rankings["value"].astype(float)
+    rankings["rank_desc"] = rankings["rank_desc"].astype(int)
+    rankings["rank_asc"] = rankings["rank_asc"].astype(int)
 
     # ---- trends (per region x indicator with >= 2 points) ----
     trend_rows = []
@@ -643,8 +654,18 @@ def _derived_frames(frames: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
     )
     latest = mov[mov["period"] == latest_period].copy()
 
-    rk = rankings.copy()
-    rk_index = rk.set_index(["indicator_id", "period", "level", "region_id"])
+    rk_lookup = {
+        (int(i), int(p), lvl, rid): (int(rd), int(ra), float(pc))
+        for i, p, lvl, rid, rd, ra, pc in zip(
+            rankings["indicator_id"],
+            rankings["period"],
+            rankings["level"],
+            rankings["region_id"],
+            rankings["rank_desc"],
+            rankings["rank_asc"],
+            rankings["percentile"],
+        )
+    }
 
     de = obs[obs["region_id"] == "DE"]
     de_index = de.set_index(["indicator_id", "period"])["value"]
@@ -656,12 +677,7 @@ def _derived_frames(frames: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
         r, i = row["region_id"], row["indicator_id"]
         period = row["period"]
         level = type_map.get(r)
-        rank_rec = None
-        if level in rk_index.index.get_level_values("level"):
-            try:
-                rank_rec = rk_index.loc[(i, period, level, r)]
-            except KeyError:
-                rank_rec = None
+        rank_rec = rk_lookup.get((int(i), int(period), level, r)) if level else None
         vs_de = de_index.get((i, period))
         vs_land = None
         parent = parent_map.get(r)
@@ -682,11 +698,9 @@ def _derived_frames(frames: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
                 "yoy_pct": None
                 if pd.isna(row["previous_value"])
                 else percentage_change(row["value"], row["previous_value"]),
-                "rank_desc": int(rank_rec.rank_desc) if rank_rec is not None else None,
-                "rank_asc": int(rank_rec.rank_asc) if rank_rec is not None else None,
-                "percentile": float(rank_rec.percentile)
-                if rank_rec is not None
-                else None,
+                "rank_desc": rank_rec[0] if rank_rec is not None else None,
+                "rank_asc": rank_rec[1] if rank_rec is not None else None,
+                "percentile": rank_rec[2] if rank_rec is not None else None,
                 "vs_de_ratio": None
                 if vs_de is None
                 else float(row["value"]) / float(vs_de),
@@ -924,7 +938,17 @@ def main() -> None:
     validate(frames)
 
     print("geometry ...")
-    geometry, areas = _geometry_index()
+    areas = None
+    if REGIONS_GEOJSON.exists() and not os.environ.get("BUNDESPULSE_REBUILD_GEOMETRY"):
+        areas = _areas_from_geojson(REGIONS_GEOJSON)
+    if areas:
+        geometry: dict = {}
+        print(
+            f"  reusing cached {REGIONS_GEOJSON.name} ({len(areas)} regions; "
+            f"set BUNDESPULSE_REBUILD_GEOMETRY=1 to rebuild)"
+        )
+    else:
+        geometry, areas = _geometry_index()
     path = save_snapshot(frames, geometry, areas)
     print(f"written snapshot: {path}")
     verify(path)

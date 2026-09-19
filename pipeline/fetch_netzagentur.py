@@ -53,6 +53,9 @@ REGISTER_URL = (
 REGISTER_FILE = "ladesaeulenregister.csv"
 
 ID_CHARGERS, ID_CHARGERS_10K = 10, 11
+ID_CHARGERS_FAST, ID_CHARGERS_FAST_SHARE = 30, 31
+
+FAST_POWER_KW = 50.0
 
 HEADERS = {"User-Agent": "Mozilla/5.0"}
 
@@ -67,11 +70,17 @@ def download(url: str, dest: Path) -> None:
         print(f"  using cached {dest.name}")
 
 
-def _read_register(path: Path) -> dict[str, int]:
-    """Aggregate 'Anzahl Ladepunkte' per (normalised) Kreis name for operational facilities."""
+def _read_register(path: Path) -> tuple[dict[str, int], dict[str, int]]:
+    """Aggregate charging points per (normalised) Kreis name.
+
+    Returns ``(all_points, fast_points)`` for operational facilities. A facility
+    counts as fast charging if it is labelled "Schnellladeeinrichtung" or has a
+    rated power of at least ``FAST_POWER_KW``.
+    """
     import csv as _csv
 
     points_by_kreis: dict[str, int] = {}
+    fast_by_kreis: dict[str, int] = {}
     with open(path, newline="", encoding="utf-8-sig") as fh:
         reader = _csv.reader(fh, delimiter=";")
         header = None
@@ -87,6 +96,8 @@ def _read_register(path: Path) -> dict[str, int]:
         missing = need - set(header)
         if missing:
             raise RuntimeError(f"Ladesaeulenregister: missing columns {missing}")
+        art_i = header.get("Art der Ladeeinrichtung")
+        power_i = header.get("Nennleistung Ladeeinrichtung [kW]")
         for row in reader:
             if not row or len(row) <= max(header.values()):
                 continue
@@ -99,7 +110,11 @@ def _read_register(path: Path) -> dict[str, int]:
                 continue
             key = normalize_kreis_name(kreis)
             points_by_kreis[key] = points_by_kreis.get(key, 0) + points
-    return points_by_kreis
+            art = row[art_i].strip().lower() if art_i is not None and art_i < len(row) else ""
+            power = _to_float(row[power_i]) if power_i is not None and power_i < len(row) else None
+            if art.startswith("schnell") or (power is not None and power >= FAST_POWER_KW):
+                fast_by_kreis[key] = fast_by_kreis.get(key, 0) + points
+    return points_by_kreis, fast_by_kreis
 
 
 def _to_int(v) -> int | None:
@@ -175,18 +190,22 @@ def main() -> None:
     print("- BNetzA: Ladesaeulenregister")
     reg = RAW_DIR / REGISTER_FILE
     download(REGISTER_URL, reg)
-    points_by_kreis = _read_register(reg)
+    points_by_kreis, fast_by_kreis = _read_register(reg)
     print(f"  facilities aggregated for {len(points_by_kreis)} distinct Kreise")
 
     name_to_ags, ags_to_land = _load_kreis_catalogue()
 
     # per-Kreis charging points (match register Kreis name -> AGS)
     chargers_kreis: dict[str, int] = {}
+    chargers_fast_kreis: dict[str, int] = {}
     unmatched = []
     for kname, points in points_by_kreis.items():
         ags = _match_kreis(kname, name_to_ags)
         if ags:
             chargers_kreis[ags] = chargers_kreis.get(ags, 0) + points
+            fast = fast_by_kreis.get(kname, 0)
+            if fast:
+                chargers_fast_kreis[ags] = chargers_fast_kreis.get(ags, 0) + fast
         else:
             unmatched.append(kname)
     print(
@@ -197,11 +216,14 @@ def main() -> None:
 
     # per-Land (and DE) charging points + per-10k inhabitants
     chargers_land: dict[str, int] = {}
+    chargers_fast_land: dict[str, int] = {}
     for ags, points in chargers_kreis.items():
         land = ags_to_land.get(ags)
         if land:
             chargers_land[land] = chargers_land.get(land, 0) + points
+            chargers_fast_land[land] = chargers_fast_land.get(land, 0) + chargers_fast_kreis.get(ags, 0)
     chargers_land[COUNTRY_ID] = sum(chargers_land.values())
+    chargers_fast_land[COUNTRY_ID] = sum(chargers_fast_land.values())
 
     population = _load_population()
 
@@ -210,6 +232,20 @@ def main() -> None:
         pop = population.get(land)
         if pop:
             chargers_per_10k[land] = round(points / pop * 10_000.0, 2)
+
+    def _share(fast: int, total: int) -> float | None:
+        return round(fast / total * 100.0, 1) if total else None
+
+    charge_share_kreis = {
+        ags: s
+        for ags, total in chargers_kreis.items()
+        if (s := _share(chargers_fast_kreis.get(ags, 0), total)) is not None
+    }
+    charge_share_land = {
+        land: s
+        for land, total in chargers_land.items()
+        if (s := _share(chargers_fast_land.get(land, 0), total)) is not None
+    }
 
     indicators = [
         (
@@ -230,6 +266,24 @@ def main() -> None:
             "Ladepunkte je 10 000 Einwohner (auf Basis der Bevölkerungsfortschreibung 2024)",
             "derived",
         ),
+        (
+            ID_CHARGERS_FAST,
+            "chargers_fast",
+            "Schnellladepunkte (≥ 50 kW)",
+            "Infrastructure",
+            "points",
+            "Öffentliche Schnellladepunkte (Schnellladeeinrichtung oder ≥ 50 kW) laut Ladesaeulenregister",
+            "raw",
+        ),
+        (
+            ID_CHARGERS_FAST_SHARE,
+            "chargers_fast_share",
+            "Anteil Schnellladepunkte",
+            "Infrastructure",
+            "percent",
+            "Anteil der Schnellladepunkte an allen öffentlichen Ladepunkten",
+            "derived",
+        ),
     ]
     sources = [
         (
@@ -248,6 +302,14 @@ def main() -> None:
         obs.append((land, ID_CHARGERS, 2026, float(val), 1))
     for land, val in chargers_per_10k.items():
         obs.append((land, ID_CHARGERS_10K, 2026, val, 1))
+    for ags, val in chargers_fast_kreis.items():
+        obs.append((ags, ID_CHARGERS_FAST, 2026, float(val), 1))
+    for land, val in chargers_fast_land.items():
+        obs.append((land, ID_CHARGERS_FAST, 2026, float(val), 1))
+    for ags, val in charge_share_kreis.items():
+        obs.append((ags, ID_CHARGERS_FAST_SHARE, 2026, val, 1))
+    for land, val in charge_share_land.items():
+        obs.append((land, ID_CHARGERS_FAST_SHARE, 2026, val, 1))
 
     _write_csv(
         OUT_DIR / "regions.csv", ["region_id", "name", "type", "parent_id", "area"], []

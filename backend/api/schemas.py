@@ -51,6 +51,7 @@ class Indicator(BaseModel):
     latest_period: int | None = None
     observation_count: int = 0
     regions_with_data: int = 0
+    source_ids: list[int] = []
 
 
 class Source(BaseModel):
@@ -114,6 +115,16 @@ class RegionProfile(BaseModel):
     region: Region
     kpis: list[Insight]
     trends: list[TrendItem]
+
+
+class NarrativeStatement(BaseModel):
+    id: str
+    text: str
+
+
+class RegionNarratives(BaseModel):
+    region_id: str
+    statements: list[NarrativeStatement]
 
 
 # ---------------------------------------------------------------- compare

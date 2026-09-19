@@ -59,9 +59,18 @@ VERKEHR_FILES = {
 
 # global indicator ids: 1-11 taken (destatis/ba/netz), 12+ new.
 ID_GDP, ID_GDP_PC, ID_HP, ID_HC, ID_TRAFFIC = 12, 13, 14, 15, 16
+ID_GDP_GROWTH = 27
+ID_TRAFFIC_PERSON, ID_TRAFFIC_FATALITIES = 28, 29
 
 HEADERS = {"User-Agent": "Mozilla/5.0"}
 TOTAL_SITUATION = "Innerhalb und außerhalb von Ortschaften"
+
+# csv-46241-01 columns -> indicator
+VERKEHR_MEASURES = {
+    "accidents": "Unfaelle_insgesamt",
+    "person_accidents": "Unfaelle_Personenschaden",
+    "fatalities": "Getoetete",
+}
 
 
 def download(url: str, dest: Path) -> None:
@@ -184,44 +193,41 @@ def _bautaetigkeit_housing(wb) -> tuple[dict[str, float], dict[str, float]]:
 # ------------------------------------------------------------------ transport
 
 
-def _verkehr_unfaelle(path: Path) -> dict[int, dict[str, float]]:
-    """Parse the per-Land road-accident totals from the 'csv-*' sheet.
+def _verkehr_measures(path: Path) -> dict[str, dict[int, dict[str, float]]]:
+    """Parse per-Land road-accident measures from the 'csv-*' sheets.
 
-    Reports differ in layout: some put the Bundesland in "Gebiet", newer ones
-    in a dedicated "Land" column. The value column is 'Unfaelle_insgesamt';
-    only the grand-total 'Ortslage' row per Land is used.
+    Returns ``{measure: {year: {region_id: value}}}`` for the measures in
+    ``VERKEHR_MEASURES`` (total, person-injury accidents, fatalities). Only the
+    grand-total 'Ortslage' row per Land is used.
     """
     wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
-    region_col = value_col = None
     header = None
     for name in wb.sheetnames:
         if not name.lower().startswith("csv"):
             continue
         ws = wb[name]
         first = next(ws.iter_rows(values_only=True), None)
-        if not first or "Gebiet" not in first:
-            continue
-        region_col = "Land" if "Land" in first else "Gebiet"
-        if "Unfaelle_insgesamt" not in first:
-            continue
-        value_col = "Unfaelle_insgesamt"
-        header = first
-        break
+        if first and "Gebiet" in first and "Unfaelle_insgesamt" in first:
+            header = first
+            break
     if header is None:
         wb.close()
         return {}
 
+    region_col = "Land" if "Land" in header else "Gebiet"
     gebiet_i = header.index(region_col)
     jahr_i = header.index("Jahr")
     ort_i = header.index("Ortslage")
-    val_i = header.index(value_col)
-    out: dict[int, dict[str, float]] = {}
+    col_idx = {
+        key: header.index(col) for key, col in VERKEHR_MEASURES.items() if col in header
+    }
+    out: dict[str, dict[int, dict[str, float]]] = {k: {} for k in col_idx}
     for name in wb.sheetnames:
         if not name.lower().startswith("csv"):
             continue
         ws = wb[name]
         for r in ws.iter_rows(values_only=True):
-            if not r or len(r) <= max(gebiet_i, jahr_i, ort_i, val_i):
+            if not r or len(r) <= max(gebiet_i, jahr_i, ort_i, *col_idx.values()):
                 continue
             if region_col == "Gebiet" and str(r[gebiet_i]).strip() == header[gebiet_i]:
                 continue  # header row
@@ -233,10 +239,10 @@ def _verkehr_unfaelle(path: Path) -> dict[int, dict[str, float]]:
             yr = re.fullmatch(r"(\d{4})", str(r[jahr_i]).strip())
             if not yr:
                 continue
-            fv = _clean(r[val_i])
-            if fv is None:
-                continue
-            out.setdefault(int(yr.group(1)), {})[rid] = fv
+            for key, ci in col_idx.items():
+                fv = _clean(r[ci])
+                if fv is not None:
+                    out[key].setdefault(int(yr.group(1)), {})[rid] = fv
     wb.close()
     return out
 
@@ -270,12 +276,26 @@ def main() -> None:
 
     # transport
     print("- Transport: Strassenverkehrsunfaelle nach Laendern (2024-2025)")
-    accidents: dict[int, dict[str, float]] = {}
+    measures: dict[str, dict[int, dict[str, float]]] = {}
     for year, url in VERKEHR_URLS.items():
         f = RAW_DIR / VERKEHR_FILES[year]
         download(url, f)
-        accidents.update(_verkehr_unfaelle(f))
-    print(f"  years: {sorted(accidents)}")
+        for key, per_year in _verkehr_measures(f).items():
+            measures.setdefault(key, {}).update(per_year)
+    accidents = measures.get("accidents", {})
+    person_accidents = measures.get("person_accidents", {})
+    fatalities = measures.get("fatalities", {})
+    print(f"  years: {sorted(accidents)} (person={len(person_accidents)}, fatal={len(fatalities)})")
+
+    # derived economy: year-over-year GDP growth per Land
+    gdp_growth: dict[int, dict[str, float]] = {}
+    previous: dict[str, float] = {}
+    for year in sorted(gdp_mio):
+        for rid, v in gdp_mio[year].items():
+            prev = previous.get(rid)
+            if prev:
+                gdp_growth.setdefault(year, {})[rid] = round((v - prev) / prev * 100.0, 2)
+            previous[rid] = v
 
     indicators = [
         (
@@ -323,6 +343,33 @@ def main() -> None:
             "Straßenverkehrsunfälle insgesamt je Bundesland (Destatis 20807)",
             "raw",
         ),
+        (
+            ID_GDP_GROWTH,
+            "gdp_growth",
+            "BIP-Wachstum gegenüber Vorjahr",
+            "Economy",
+            "percent",
+            "Jährliche Veränderung des BIP in jeweiligen Preisen (VGR der Länder)",
+            "derived",
+        ),
+        (
+            ID_TRAFFIC_PERSON,
+            "traffic_person_accidents",
+            "Straßenverkehrsunfälle mit Personenschaden",
+            "Mobility",
+            "accidents",
+            "Unfälle mit Personenschaden je Bundesland (Destatis 20807)",
+            "raw",
+        ),
+        (
+            ID_TRAFFIC_FATALITIES,
+            "traffic_fatalities",
+            "Getötete bei Straßenverkehrsunfällen",
+            "Mobility",
+            "persons",
+            "Bei Straßenverkehrsunfällen getötete Personen je Bundesland (Destatis 20807)",
+            "raw",
+        ),
     ]
     sources = [
         (
@@ -359,9 +406,18 @@ def main() -> None:
         obs.append((rid, ID_HP, 2022, v, 2))
     for rid, v in completions.items():
         obs.append((rid, ID_HC, 2022, v, 2))
+    for year, vals in gdp_growth.items():
+        for rid, v in vals.items():
+            obs.append((rid, ID_GDP_GROWTH, year, v, 1))
     for year, vals in accidents.items():
         for rid, v in vals.items():
             obs.append((rid, ID_TRAFFIC, year, v, 3))
+    for year, vals in person_accidents.items():
+        for rid, v in vals.items():
+            obs.append((rid, ID_TRAFFIC_PERSON, year, v, 3))
+    for year, vals in fatalities.items():
+        for rid, v in vals.items():
+            obs.append((rid, ID_TRAFFIC_FATALITIES, year, v, 3))
 
     _write_csv(
         OUT_DIR / "regions.csv", ["region_id", "name", "type", "parent_id", "area"], []

@@ -10,6 +10,7 @@ import {
   fetchRegion,
   fetchRegionGeoJson,
   fetchRegionInsights,
+  fetchRegionNarratives,
   fetchRegionProfile,
   fetchRegionSeries,
   fetchRegions,
@@ -25,6 +26,7 @@ import {
   type Region,
   type RegionGeoJson,
   type RegionIndicatorSeries,
+  type RegionNarratives,
   type RegionProfile,
   type Source,
 } from "@/lib/api"
@@ -80,6 +82,14 @@ export function useRegionProfile(regionId: string) {
   })
 }
 
+export function useRegionNarratives(regionId: string) {
+  return useQuery<RegionNarratives>({
+    queryKey: ["narratives", regionId],
+    queryFn: () => fetchRegionNarratives(regionId),
+    enabled: regionId.length > 0,
+  })
+}
+
 export function useRegionInsights(regionId: string) {
   return useQuery<Insight[]>({
     queryKey: ["insights", regionId],
@@ -87,10 +97,11 @@ export function useRegionInsights(regionId: string) {
   })
 }
 
-export function useRegionSeries(regionId: string, indicator: string) {
+export function useRegionSeries(regionId: string, indicator: string, opts: { enabled?: boolean } = {}) {
   return useQuery<RegionIndicatorSeries>({
     queryKey: ["series", regionId, indicator],
     queryFn: () => fetchRegionSeries(regionId, indicator),
+    enabled: opts.enabled !== false && regionId.length > 0 && indicator.length > 0,
   })
 }
 
@@ -104,7 +115,7 @@ export function useCompare(regions: string[], indicator: string) {
 
 export function useRankings(
   indicator: string,
-  opts: { level?: string; order?: string; limit?: number; period?: number } = {},
+  opts: { level?: string; order?: string; limit?: number; period?: number; enabled?: boolean } = {},
 ) {
   return useQuery<RankingsResponse>({
     queryKey: [
@@ -115,17 +126,19 @@ export function useRankings(
       opts.period ?? "latest",
     ],
     queryFn: () => fetchRankings(indicator, opts),
+    enabled: opts.enabled !== false && indicator.length > 0,
   })
 }
 
 export function useCorrelation(
   x: string,
   y: string,
-  opts: { level?: string } = {},
+  opts: { level?: string; period?: number } = {},
 ) {
   return useQuery<CorrelationResponse>({
-    queryKey: ["correlation", x, y, opts.level ?? "bundesland"],
+    queryKey: ["correlation", x, y, opts.level ?? "bundesland", opts.period ?? "latest"],
     queryFn: () => fetchCorrelation(x, y, opts),
+    enabled: x.length > 0 && y.length > 0,
   })
 }
 

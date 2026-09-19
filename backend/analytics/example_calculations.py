@@ -28,7 +28,7 @@ from backend.analytics.measures import (
     rank,
     yoy_changes,
 )
-from backend.db import SnapshotUnavailableError, get_connection
+from backend.db import SnapshotUnavailableError, get_connection, select_rows
 
 
 def _fmt(number, digits: int = 2) -> str:
@@ -53,7 +53,8 @@ def _values(
     if level is not None:
         sql += " AND r.type = ?"
         params.append(level)
-    return [(rid, float(v)) for rid, v in conn.execute(sql, params).fetchall()]
+    rows = select_rows(conn, sql, params)
+    return [(str(r["region_id"]), float(r["value"])) for r in rows]
 
 
 def _single(conn, slug: str, region_id: str, year: int) -> float | None:
@@ -84,10 +85,8 @@ def main() -> None:
     print("\n=== 2) Ranking + percentile: GDP je Einwohner 2024, Bundesländer ===")
     gdp = [v for _, v in _values(conn, "gdp_pc", year=2024, level="bundesland")]
     names = {
-        rid: name
-        for rid, name in conn.execute(
-            "SELECT region_id, name FROM regions WHERE type='bundesland'"
-        ).fetchall()
+        r["region_id"]: r["name"]
+        for r in select_rows(conn, "SELECT region_id, name FROM regions WHERE type='bundesland'")
     }
     by_name = {
         name: v
@@ -131,12 +130,13 @@ def main() -> None:
     print(f"  Pearson r = {correlation(x, y)['coefficient']}  (n={len(x)})")
 
     print("\n=== 6) Anomaly detection: Germany annual population growth, 1991-2024 ===")
-    series = conn.execute(
+    series = select_rows(
+        conn,
         "SELECT o.period, o.value FROM observations o "
         "JOIN indicators i ON i.indicator_id = o.indicator_id "
-        "WHERE i.slug = 'pop_total' AND o.region_id = 'DE' ORDER BY o.period"
-    ).fetchall()
-    series = [(int(p), float(v)) for p, v in series]
+        "WHERE i.slug = 'pop_total' AND o.region_id = 'DE' ORDER BY o.period",
+    )
+    series = [(int(r["period"]), float(r["value"])) for r in series]
     changes = [
         (row["period"], row["percentage_change"])
         for row in yoy_changes(series)

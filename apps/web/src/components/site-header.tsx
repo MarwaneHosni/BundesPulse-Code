@@ -28,8 +28,8 @@ export function SiteHeader() {
                 cn(
                   "whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium transition-colors",
                   isActive
-                    ? "bg-accent text-accent-foreground"
-                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                    ? "bg-muted text-foreground"
+                    : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
                 )
               }
             >
@@ -38,7 +38,7 @@ export function SiteHeader() {
           ))}
           <Link
             to="/methodology"
-            className="whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium text-muted-foreground/60 transition-colors hover:bg-accent hover:text-accent-foreground"
+            className="whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
           >
             Methodik & Quellen
           </Link>

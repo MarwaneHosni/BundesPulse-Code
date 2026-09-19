@@ -194,7 +194,7 @@ export function RankingsPage() {
         </div>
 
         <aside className="lg:border-l lg:pl-6">
-          <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-muted-foreground">Karte</h2>
+          <h2 className="mb-3 text-sm font-medium text-muted-foreground">Karte</h2>
           {geojson.isPending || ranking.isPending || !regionsGeo ? (
             <LoadingState label="Karte wird geladen …" />
           ) : (

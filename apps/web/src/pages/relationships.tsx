@@ -83,7 +83,7 @@ export function RelationshipsPage() {
         {
           type: "scatter",
           symbolSize: points.length > 60 ? 6 : 10,
-          itemStyle: { color: "#1d4f8a", opacity: 0.85 },
+          itemStyle: { color: "#1c6db0", opacity: 0.85 },
           data: points.map((p) => ({
             name: p.name,
             regionId: p.region_id,
@@ -190,7 +190,7 @@ export function RelationshipsPage() {
               }}
             />
             <aside className="lg:border-l lg:pl-6">
-              <h2 className="mb-2 text-sm font-medium uppercase tracking-wide text-muted-foreground">Hinweis</h2>
+              <h2 className="mb-2 text-sm font-medium text-muted-foreground">Hinweis</h2>
               <p className="text-sm text-muted-foreground">
                 Korrelation beschreibt einen Zusammenhang, sie begründet keine Kausalität.
               </p>

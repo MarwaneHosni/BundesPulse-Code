@@ -8,18 +8,17 @@ import type { RegionGeoJson } from "@/lib/api"
  * both stay perfectly in sync (single source of truth).
  */
 const RAMP = [
-  "#eef4fb",
-  "#dbe6f4",
-  "#c3d5ec",
-  "#a3bfe0",
-  "#7fa4d0",
-  "#5886bd",
-  "#376ba6",
-  "#1d4f8a",
+  "#f0f6fd",
+  "#d6e6f7",
+  "#b3d2ef",
+  "#7fb3e1",
+  "#4a8fcf",
+  "#1c6db0",
+  "#0b4f8a",
 ]
 
 /** Color for features without an observation. */
-const NO_DATA_FILL = "#e6e8ec"
+const NO_DATA_FILL = "#c7cdd6"
 
 /** minimal structural type for the GeoJSON payload MapLibre accepts */
 interface GeoJsonLike {
@@ -116,14 +115,14 @@ export function RegionsMap({
           regions: { type: "geojson", data: featureData },
         },
         layers: [
-          { id: "background", type: "background", paint: { "background-color": "#fafbfc" } },
+          { id: "background", type: "background", paint: { "background-color": "rgba(0,0,0,0)" } },
           {
             id: "regions-fill",
             type: "fill",
             source: "regions",
             paint: {
               "fill-color": fillColorExpression,
-              "fill-outline-color": "#ffffff",
+              "fill-outline-color": "rgba(255,255,255,0.85)",
               "fill-opacity": 0.95,
             },
           },
@@ -136,7 +135,7 @@ export function RegionsMap({
               "fill-opacity": [
                 "case",
                 ["boolean", ["feature-state", "hover"], false],
-                0.16,
+                0.18,
                 0,
               ],
             },
@@ -145,7 +144,7 @@ export function RegionsMap({
             id: "regions-outline",
             type: "line",
             source: "regions",
-            paint: { "line-color": "#ffffff", "line-width": 0.75 },
+            paint: { "line-color": "rgba(255,255,255,0.9)", "line-width": 0.75 },
           },
         ],
       }) as never,
@@ -240,7 +239,7 @@ export function RegionsMap({
     else map.once("load", apply)
   }, [featureData, fillColorExpression])
 
-  return <div ref={containerRef} className="h-[540px] w-full overflow-hidden rounded-md border" />
+  return <div ref={containerRef} className="h-[360px] w-full overflow-hidden rounded-md border bg-muted sm:h-[440px] lg:h-[540px]" />
 }
 
 function tooltipHtml(
@@ -335,7 +334,13 @@ export function MapLegend({
       </div>
       {hasMissing && (
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <span className="size-3 rounded-[3px] border border-border" style={{ backgroundColor: NO_DATA_FILL }} />
+          <span
+            className="size-3 rounded-[3px] border border-border"
+            style={{
+              backgroundImage:
+                "repeating-linear-gradient(45deg, #c7cdd6 0 2px, #e3e8ef 2px 4px)",
+            }}
+          />
           keine Daten{missingCount != null ? ` (${missingCount})` : ""}
         </div>
       )}

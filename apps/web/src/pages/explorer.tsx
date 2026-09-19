@@ -119,7 +119,7 @@ export function ExplorerPage() {
         {
           type: "bar",
           data: top.map((e) => e.value).reverse(),
-          itemStyle: { color: "#1d4f8a" },
+          itemStyle: { color: "#1c6db0" },
           label: { show: true, position: "right", color: "#64748b", fontSize: 11, formatter: (p: { value: number }) => fmtN.format(p.value) },
         },
       ],
@@ -273,7 +273,7 @@ export function ExplorerPage() {
             </div>
 
             <aside className="lg:border-l lg:pl-6">
-              <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-muted-foreground">
+              <h2 className="mb-3 text-sm font-medium text-muted-foreground">
                 Top {Math.min(20, chartTop.data?.entries.length ?? 0)}
               </h2>
               {(chartTop.data?.entries.length ?? 0) > 0 && (
@@ -284,7 +284,7 @@ export function ExplorerPage() {
 
           {/* map */}
           <section className="mt-10 border-t pt-8">
-            <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-muted-foreground">Karte</h2>
+            <h2 className="mb-3 text-sm font-medium text-muted-foreground">Karte</h2>
             {!regionsGeo ? (
               <LoadingState label="Karte wird geladen …" />
             ) : (
@@ -310,7 +310,7 @@ export function ExplorerPage() {
           {/* sources */}
           {relevantSources.length > 0 && (
             <section className="mt-10 border-t pt-6">
-              <h2 className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">Quelle</h2>
+              <h2 className="mb-2 text-xs font-medium text-muted-foreground">Quelle</h2>
               <ul className="space-y-1 text-sm">
                 {relevantSources.map((s) => (
                   <li key={s.source_id} className="flex flex-wrap items-baseline gap-x-2">

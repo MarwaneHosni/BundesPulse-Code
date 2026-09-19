@@ -2,10 +2,23 @@ import tailwindcssAnimate from "tailwindcss-animate"
 
 /** @type {import('tailwindcss').Config} */
 export default {
-  darkMode: ["class"],
+  darkMode: "media",
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
+      fontFamily: {
+        sans: [
+          "ui-sans-serif",
+          '"Segoe UI Variable Text"',
+          '"Segoe UI"',
+          "Inter",
+          "system-ui",
+          "-apple-system",
+          '"Helvetica Neue"',
+          "Arial",
+          "sans-serif",
+        ],
+      },
       container: {
         center: true,
         padding: {

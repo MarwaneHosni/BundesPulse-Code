@@ -18,7 +18,7 @@ export function SourceNote({ source, label }: { source?: Source | null; label?: 
               href={source.url}
               target="_blank"
               rel="noreferrer"
-              className="ml-1 inline-flex items-center gap-0.5 text-foreground/70 underline decoration-muted-foreground/40 underline-offset-2 hover:text-foreground"
+              className="ml-1 inline-flex items-center gap-0.5 text-primary underline-offset-2 hover:underline"
             >
               Quelle <ExternalLink className="size-3" />
             </a>

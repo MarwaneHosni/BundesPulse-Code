@@ -16,8 +16,10 @@ interface DataTableProps<T> {
   dense?: boolean
 }
 
-const td = "px-3 py-2 text-sm tabular-nums"
-const th = cn(td, "font-medium text-muted-foreground border-b whitespace-nowrap")
+const td = "px-3 py-[7px] text-sm tabular-nums"
+const th = cn(
+  "px-3 py-2 text-xs font-medium text-muted-foreground border-b whitespace-nowrap align-bottom",
+)
 
 export function DataTable<T>({ columns, rows, rowKey, emptyLabel, dense }: DataTableProps<T>) {
   return (
@@ -41,11 +43,11 @@ export function DataTable<T>({ columns, rows, rowKey, emptyLabel, dense }: DataT
             </tr>
           )}
           {rows.map((row, i) => (
-            <tr key={rowKey(row)} className="border-b last:border-0 hover:bg-muted/40">
+            <tr key={rowKey(row)} className="border-b last:border-0 hover:bg-muted/60">
               {columns.map((col) => (
                 <td
                   key={col.key}
-                  className={cn(td, dense ? "py-1.5" : "", col.align === "right" && "text-right")}
+                  className={cn(td, dense ? "py-1" : "", col.align === "right" && "text-right")}
                 >
                   {col.render ? col.render(row, i) : String((row as Record<string, unknown>)[col.key] ?? "")}
                 </td>

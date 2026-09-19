@@ -14,6 +14,41 @@ echarts.use([BarChart, LineChart, ScatterChart, GridComponent, LegendComponent, 
 
 type EChartsOption = echarts.EChartsCoreOption
 
+/**
+ * Shared visual base for every chart (see docs/DESIGN-PLAN.md §11).
+ * Merged after each page's option so page values still win, while axes, grid,
+ * legend and tooltips get one coherent, mode-neutral treatment.
+ */
+const BASE_THEME: EChartsOption = {
+  textStyle: {
+    fontFamily:
+      'ui-sans-serif, "Segoe UI Variable Text", "Segoe UI", Inter, system-ui, -apple-system, sans-serif',
+    color: "#64748b",
+    fontSize: 12,
+  },
+  color: ["#1c6db0", "#d95f02", "#7570b3", "#1b9e77", "#e7298a", "#e6ab02", "#a6761d", "#666666"],
+  grid: { borderColor: "rgba(148,163,184,0.25)" },
+  xAxis: {
+    axisLine: { lineStyle: { color: "rgba(148,163,184,0.5)" } },
+    axisTick: { lineStyle: { color: "rgba(148,163,184,0.5)" } },
+    axisLabel: { color: "#64748b" },
+    splitLine: { lineStyle: { color: "rgba(148,163,184,0.18)" } },
+  },
+  yAxis: {
+    axisLine: { lineStyle: { color: "rgba(148,163,184,0.5)" } },
+    axisTick: { lineStyle: { color: "rgba(148,163,184,0.5)" } },
+    axisLabel: { color: "#64748b" },
+    splitLine: { lineStyle: { color: "rgba(148,163,184,0.18)" } },
+  },
+  legend: { textStyle: { color: "#64748b" } },
+  tooltip: {
+    backgroundColor: "rgba(15,23,42,0.96)",
+    borderColor: "rgba(255,255,255,0.12)",
+    borderWidth: 1,
+    textStyle: { color: "#e6eaf0" },
+  },
+}
+
 interface EChartProps {
   option: EChartsOption
   height?: number | string
@@ -47,7 +82,11 @@ export function EChart({ option, height = 320, className, onClick }: EChartProps
   }, [])
 
   useEffect(() => {
-    chartRef.current?.setOption(option, true)
+    const chart = chartRef.current
+    if (!chart) return
+    chart.setOption(option, true)
+    // apply shared visual base where the page option doesn't define a value
+    chart.setOption(BASE_THEME)
   }, [option])
 
   return (

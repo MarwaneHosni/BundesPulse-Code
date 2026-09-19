@@ -21,9 +21,9 @@ export function Kpi({ label, value, unit, delta, deltaSuffix = "%", hint }: KpiP
   const hasDelta = delta !== null && delta !== undefined && Number.isFinite(delta)
   return (
     <div>
-      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
-      <p className="mt-1 flex items-baseline gap-2">
-        <span className="text-3xl font-semibold tabular-nums tracking-tight">
+      <p className="text-xs font-medium text-muted-foreground">{label}</p>
+      <p className="mt-1.5 flex items-baseline gap-2">
+        <span className="text-[30px] font-semibold leading-[34px] tabular-nums tracking-tight">
           {value === null || value === undefined ? "–" : typeof value === "number" ? fmtNum(value) : value}
           {unit && <span className="ml-1 text-base font-normal text-muted-foreground">{unit}</span>}
         </span>
@@ -31,7 +31,11 @@ export function Kpi({ label, value, unit, delta, deltaSuffix = "%", hint }: KpiP
           <span
             className={cn(
               "text-sm font-medium tabular-nums",
-              delta! > 0 ? "text-emerald-600" : delta! < 0 ? "text-destructive" : "text-muted-foreground",
+              delta! > 0
+                ? "text-emerald-600 dark:text-emerald-400"
+                : delta! < 0
+                  ? "text-destructive"
+                  : "text-muted-foreground",
             )}
           >
             {delta! > 0 ? "▲" : delta! < 0 ? "▼" : ""} {fmtNum(Math.abs(delta!))}

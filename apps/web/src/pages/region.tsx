@@ -244,7 +244,7 @@ export function RegionPage() {
 
       {/* overview */}
       <section id="uebersicht" className="scroll-mt-20">
-        <h2 className="mb-5 text-sm font-medium uppercase tracking-wide text-muted-foreground">Überblick</h2>
+        <h2 className="mb-5 text-sm font-medium text-muted-foreground">Überblick</h2>
         <div className={`grid gap-x-10 gap-y-6 sm:grid-cols-2 ${overviewKpis.length <= 2 ? "lg:grid-cols-2" : "lg:grid-cols-4"}`}>
           {overviewKpis.map((k) => (
             <ProfileStat key={k.slug} insight={k} typeTotal={typeTotal} />
@@ -412,8 +412,8 @@ function ProfileStat({ insight, typeTotal }: { insight: Insight; typeTotal?: num
 
   return (
     <div className="border-t pt-3">
-      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{insight.name}</p>
-      <p className="mt-1.5 text-3xl font-semibold tabular-nums tracking-tight">
+      <p className="text-xs font-medium text-muted-foreground">{insight.name}</p>
+      <p className="mt-1.5 text-[30px] font-semibold leading-[34px] tabular-nums tracking-tight">
         {statValue(insight)}
         <span className="ml-1 text-base font-normal text-muted-foreground">{unitLabel(insight.unit)}</span>
       </p>
@@ -474,8 +474,8 @@ function ComparisonPanel({
   return (
     <div className="space-y-5">
       <div className="border-t pt-3">
-        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Rang</p>
-        <p className="mt-1 text-3xl font-semibold tabular-nums">
+        <p className="text-xs font-medium text-muted-foreground">Rang</p>
+        <p className="mt-1 text-[30px] font-semibold leading-[34px] tabular-nums">
           #{rankRow?.rank ?? "–"}
           {count != null && <span className="ml-1 text-base font-normal text-muted-foreground">von {count}</span>}
         </p>
@@ -484,7 +484,7 @@ function ComparisonPanel({
         </p>
       </div>
       <div className="border-t pt-3">
-        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Richtung</p>
+        <p className="text-xs font-medium text-muted-foreground">Richtung</p>
         <p className="mt-1 text-sm">{lowerIsBetter ? "Niedrigere Werte sind besser" : "Höhere Werte sind besser"}</p>
       </div>
       {activeComp.yoy_pct != null && activeComp.previous_value != null && (
@@ -532,8 +532,8 @@ function trendOption(
         symbol: "circle",
         showSymbol: showPoints,
         connectNulls: false,
-        lineStyle: { color: "#1d4f8a", width: 2.5 },
-        itemStyle: { color: "#1d4f8a" },
+        lineStyle: { color: "#1c6db0", width: 2.5 },
+        itemStyle: { color: "#1c6db0" },
         emphasis: { focus: "series" },
         data: periods.map((p) => (regMap.has(p) ? regMap.get(p)! : null)),
       },
@@ -580,7 +580,7 @@ function comparisonOption(
   const bars = shown
     .map((e) => ({
       value: e.value,
-      itemStyle: { color: e.region_id === regionId ? "#1d4f8a" : "#c3d5ec" },
+      itemStyle: { color: e.region_id === regionId ? "#1c6db0" : "#b3d2ef" },
     }))
     .reverse()
 

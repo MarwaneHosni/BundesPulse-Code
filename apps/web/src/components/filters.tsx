@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils"
 
 export function FilterLabel({ children }: { children: ReactNode }) {
   return (
-    <label className="mb-1 block text-xs font-medium text-muted-foreground">{children}</label>
+    <label className="mb-1.5 block text-xs font-medium text-muted-foreground">{children}</label>
   )
 }
 
@@ -30,8 +30,8 @@ export function Select({
   return (
     <select
       className={cn(
-        "h-9 min-w-40 rounded-md border border-input bg-background px-3 text-sm text-foreground shadow-sm",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "h-9 min-w-40 rounded-md border border-input bg-background px-3 text-sm text-foreground",
+        "hover:border-muted-foreground/40 focus-visible:outline-none",
         className,
       )}
       {...props}
@@ -56,15 +56,15 @@ export function Segmented<T extends string>({
   options: SegmentedOption<T>[]
 }) {
   return (
-    <div className="inline-flex h-9 items-center rounded-md border border-input bg-muted/40 p-0.5">
+    <div className="inline-flex h-9 items-center rounded-md border border-input bg-muted p-0.5">
       {options.map((opt) => (
         <button
           key={opt.value}
           type="button"
           className={cn(
-            "inline-flex h-full items-center rounded-[4px] px-3 text-sm font-medium transition-colors",
+            "inline-flex h-full items-center rounded-[5px] px-3 text-sm font-medium transition-colors",
             value === opt.value
-              ? "bg-background text-foreground shadow-sm"
+              ? "bg-background text-foreground"
               : "text-muted-foreground hover:text-foreground",
           )}
           onClick={() => onChange(opt.value)}

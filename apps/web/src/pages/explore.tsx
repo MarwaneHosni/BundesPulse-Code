@@ -174,7 +174,7 @@ export function ExplorePage() {
         </div>
 
         <aside className="lg:border-l lg:pl-6">
-          <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-muted-foreground">Rangfolge</h2>
+          <h2 className="mb-3 text-sm font-medium text-muted-foreground">Rangfolge</h2>
           <ol className="space-y-1.5">
             {(ranking.data?.entries ?? []).slice(0, 8).map((e) => (
               <li key={e.region_id}>

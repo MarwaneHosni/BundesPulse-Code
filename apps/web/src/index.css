@@ -2,74 +2,161 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================================
+   BundesPulse design tokens — civic instrument palette (see docs/DESIGN-PLAN.md)
+   UI tokens are HSL triplets consumed by tailwind.config.js.
+   ========================================================================= */
 @layer base {
   :root {
+    color-scheme: light;
+
+    /* UI palette: paper / surface / ink / muted-ink / line / accent */
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 222 47% 11%;
+
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-    --radius: 0.5rem;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 211 75% 28%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 29% 96%;
+    --secondary-foreground: 222 47% 11%;
+
+    --muted: 210 29% 96%;
+    --muted-foreground: 216 11% 40%;
+
+    --accent: 210 47% 95%;
+    --accent-foreground: 211 75% 28%;
+
+    --destructive: 4 76% 40%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 214 28% 87%;
+    --input: 214 28% 87%;
+    --ring: 211 75% 28%;
+
+    --radius: 0.375rem;
+
+    /* Data palette (colour-blind safe) — available to inline styles / legends */
+    --data-seq-1: #f0f6fd;
+    --data-seq-2: #d6e6f7;
+    --data-seq-3: #b3d2ef;
+    --data-seq-4: #7fb3e1;
+    --data-seq-5: #4a8fcf;
+    --data-seq-6: #1c6db0;
+    --data-seq-7: #0b4f8a;
+    --data-div-low-3: #b35806;
+    --data-div-low-2: #e08214;
+    --data-div-low-1: #fdb863;
+    --data-div-mid: #f7f7f7;
+    --data-div-high-1: #b8d6ee;
+    --data-div-high-2: #6fa8d6;
+    --data-div-high-3: #2166ac;
+    --data-no: #c7cdd6;
+    --data-grid: #e3e8ef;
+    --data-label: #5b6472;
   }
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+
+      --background: 210 29% 6%;
+      --foreground: 213 27% 92%;
+
+      --card: 214 29% 10%;
+      --card-foreground: 213 27% 92%;
+      --popover: 214 29% 10%;
+      --popover-foreground: 213 27% 92%;
+
+      --primary: 208 79% 69%;
+      --primary-foreground: 210 29% 6%;
+
+      --secondary: 214 24% 12%;
+      --secondary-foreground: 213 27% 92%;
+
+      --muted: 214 24% 12%;
+      --muted-foreground: 217 11% 65%;
+
+      --accent: 214 30% 15%;
+      --accent-foreground: 213 27% 92%;
+
+      --destructive: 4 92% 69%;
+      --destructive-foreground: 210 29% 6%;
+
+      --border: 215 24% 20%;
+      --input: 215 24% 20%;
+      --ring: 208 79% 69%;
+
+      --data-grid: #243040;
+      --data-label: #98a2b3;
+      --data-no: #374151;
+    }
   }
 
   * {
     @apply border-border;
   }
 
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
   body {
     @apply bg-background text-foreground antialiased;
+    font-family: ui-sans-serif, "Segoe UI Variable Text", "Segoe UI", Inter,
+      system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    /* Statistical figures: align columns on the decimal, never jitter. */
+    font-variant-numeric: tabular-nums lining-nums;
+    font-feature-settings: "tnum" 1, "lnum" 1;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  /* Strong, consistent focus indicator for keyboard users. */
+  *:focus-visible {
+    outline: 2px solid hsl(var(--ring)) !important;
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: hsl(var(--primary) / 0.16);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 
 @layer components {
-  /* MapLibre popup used by the Explore choropleth. */
+  /* MapLibre popup used by the Explore / Rankings choropleth. */
   .bp-popup .maplibregl-popup-content {
     padding: 8px 12px;
-    border-radius: 6px;
+    border-radius: var(--radius);
+    border: 1px solid hsl(var(--border));
     font-family: inherit;
     font-size: 13px;
-    color: #0f172a;
-    box-shadow: 0 4px 14px rgb(0 0 0 / 0.14);
+    color: hsl(var(--foreground));
+    background: hsl(var(--popover));
+    box-shadow: 0 4px 14px rgb(15 23 42 / 0.12);
   }
   .bp-popup .maplibregl-popup-tip {
-    border-top-color: #fff;
-    border-bottom-color: #fff;
+    border-top-color: hsl(var(--popover));
+    border-bottom-color: hsl(var(--popover));
   }
   .bp-popup strong {
     font-weight: 600;
@@ -77,8 +164,14 @@
   .bp-popup-rank {
     display: block;
     margin-top: 2px;
-    color: #64748b;
+    color: hsl(var(--muted-foreground));
     font-size: 12px;
     font-variant-numeric: tabular-nums;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .bp-popup .maplibregl-popup-content {
+      box-shadow: 0 4px 16px rgb(0 0 0 / 0.5);
+    }
   }
 }

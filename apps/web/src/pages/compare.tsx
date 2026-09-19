@@ -16,7 +16,7 @@ import type { Insight } from "@/lib/api"
 const LEVEL_DEFAULTS: Record<string, string> = { bundesland: "gdp_pc", kreis: "unemp_rate" }
 const MAX_REGIONS = 4
 
-const COLORS = ["#1d4f8a", "#0d9488", "#c2410c", "#7c3aed"]
+const COLORS = ["#1c6db0", "#d95f02", "#1b9e77", "#7570b3"]
 
 function fmt(v: number | null | undefined, digits = 1): string {
   if (v === null || v === undefined || !Number.isFinite(v)) return "–"
@@ -222,7 +222,7 @@ export function ComparePage() {
               </div>
             )}
 
-            <h2 className="mt-8 mb-3 text-sm font-medium uppercase tracking-wide text-muted-foreground">Zeitreihe</h2>
+            <h2 className="mt-8 mb-3 text-sm font-medium text-muted-foreground">Zeitreihe</h2>
             {compare.isError && <ErrorState message={String(compare.error?.message ?? "Fehler")} />}
             {compare.isPending ? (
               <LoadingState label="Vergleich wird geladen …" />
@@ -235,7 +235,7 @@ export function ComparePage() {
           </div>
 
           <aside className="lg:border-l lg:pl-6">
-            <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-muted-foreground">Letzter Stand</h2>
+            <h2 className="mb-3 text-sm font-medium text-muted-foreground">Letzter Stand</h2>
             <DataTable
               columns={[
                 {
@@ -297,8 +297,8 @@ function CompareStat({
   const up = pct != null && pct >= 0
   return (
     <button type="button" onClick={onClick} className="border-t pt-3 text-left transition-opacity hover:opacity-80">
-      <p className="truncate text-xs font-medium uppercase tracking-wide text-muted-foreground">{name}</p>
-      <p className="mt-1.5 text-3xl font-semibold tabular-nums tracking-tight">
+      <p className="truncate text-xs font-medium text-muted-foreground">{name}</p>
+      <p className="mt-1.5 text-[30px] font-semibold leading-[34px] tabular-nums tracking-tight">
         {fmt(value)}
         {unit && <span className="ml-1 text-base font-normal text-muted-foreground">{unit}</span>}
       </p>

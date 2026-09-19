@@ -8,14 +8,21 @@ export default {
     extend: {
       fontFamily: {
         sans: [
+          "Inter",
           "ui-sans-serif",
           '"Segoe UI Variable Text"',
           '"Segoe UI"',
-          "Inter",
           "system-ui",
           "-apple-system",
           '"Helvetica Neue"',
           "Arial",
+          "sans-serif",
+        ],
+        display: [
+          '"Space Grotesk"',
+          "Inter",
+          "ui-sans-serif",
+          "system-ui",
           "sans-serif",
         ],
       },

@@ -107,7 +107,7 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: ui-sans-serif, "Segoe UI Variable Text", "Segoe UI", Inter,
+    font-family: "Inter", ui-sans-serif, "Segoe UI Variable Text", "Segoe UI",
       system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
     /* Statistical figures: align columns on the decimal, never jitter. */
     font-variant-numeric: tabular-nums lining-nums;
@@ -117,6 +117,7 @@
   h1,
   h2,
   h3 {
+    font-family: "Space Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
     text-wrap: balance;
   }
 

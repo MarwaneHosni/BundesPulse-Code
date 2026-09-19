@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import {
   Activity,
   Award,
@@ -22,7 +22,15 @@ import {
   Zap,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useIndicators, useMetadata, useRankings, useRegions } from "@/lib/queries"
+import { LoadingState } from "@/components/async-state"
+import { MapLegend, RegionsMap, type RegionDatum } from "@/components/regions-map"
+import {
+  useIndicators,
+  useMetadata,
+  useRankings,
+  useRegionGeoJson,
+  useRegions,
+} from "@/lib/queries"
 import type { Indicator } from "@/lib/api"
 
 const CATEGORY_ICON: Record<string, typeof LineChart> = {
@@ -63,10 +71,27 @@ function groupByCategory(indicators: Indicator[]): Array<[string, Indicator[]]> 
 }
 
 export function HomePage() {
+  const navigate = useNavigate()
   const regions = useRegions()
   const indicators = useIndicators()
   const meta = useMetadata()
   const ranking = useRankings("unemp_rate", { level: "kreis", order: "asc", limit: 5 })
+
+  // map (Bundesländer, BIP je Einwohner)
+  const mapRanking = useRankings("gdp_pc", { level: "bundesland", order: "desc", limit: 500 })
+  const geojson = useRegionGeoJson()
+  const mapIndicator = indicators.data?.find((i) => i.slug === "gdp_pc")
+  const mapEntries = mapRanking.data?.entries ?? []
+  const mapData: Record<string, RegionDatum> = {}
+  for (const e of mapEntries) mapData[e.region_id] = { value: e.value, rank: e.rank }
+  const mapGeo = geojson.data
+    ? {
+        ...geojson.data,
+        features: geojson.data.features.filter((f) => f.properties.type === "bundesland"),
+      }
+    : undefined
+  const mapMin = mapEntries.length ? Math.min(...mapEntries.map((e) => e.value)) : 0
+  const mapMax = mapEntries.length ? Math.max(...mapEntries.map((e) => e.value)) : 1
 
   const all = regions.data ?? []
   const laender = all.filter((r) => r.type === "bundesland").length
@@ -132,6 +157,63 @@ export function HomePage() {
               <Link to="/explore">Deutschlandkarte öffnen</Link>
             </Button>
           </div>
+        </div>
+      </section>
+
+      {/* interactive map */}
+      <section className="mt-6 overflow-hidden rounded-3xl border bg-card">
+        <header className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4">
+          <div className="flex items-center gap-3">
+            <span
+              aria-hidden="true"
+              className="grid size-10 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary"
+            >
+              <MapIcon className="size-5" />
+            </span>
+            <div className="min-w-0">
+              <h2 className="font-display text-lg font-semibold tracking-tight">Deutschlandkarte</h2>
+              <p className="text-xs text-muted-foreground">
+                {mapIndicator
+                  ? `${mapIndicator.name} · ${mapIndicator.unit}`
+                  : "Bundesländer – Region anklicken"}
+              </p>
+            </div>
+          </div>
+          <Link
+            to="/explore"
+            className="text-sm font-medium text-primary underline-offset-4 hover:underline"
+          >
+            In Explore öffnen
+          </Link>
+        </header>
+        <div className="p-4 sm:p-5">
+          {mapRanking.isPending || geojson.isPending || !mapGeo ? (
+            <LoadingState label="Karte wird geladen …" />
+          ) : (
+            <>
+              <RegionsMap
+                geojson={mapGeo}
+                data={mapData}
+                unit={mapIndicator?.unit}
+                rankTotal={mapRanking.data?.count}
+                onSelect={(id) => navigate(`/region/${id}`)}
+              />
+              <MapLegend
+                unit={mapIndicator?.unit ?? undefined}
+                min={mapMin}
+                max={mapMax}
+                hasMissing={
+                  mapRanking.data?.count != null &&
+                  mapGeo.features.length > mapRanking.data.count
+                }
+                missingCount={
+                  mapRanking.data?.count != null
+                    ? Math.max(0, mapGeo.features.length - mapRanking.data.count)
+                    : undefined
+                }
+              />
+            </>
+          )}
         </div>
       </section>
 

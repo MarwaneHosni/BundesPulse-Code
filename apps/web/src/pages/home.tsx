@@ -114,6 +114,10 @@ export function HomePage() {
 
   const providers = [...new Set((meta.data?.sources ?? []).map((s) => s.provider))]
 
+  const snapshotDate = meta.data?.snapshot.built_at_utc
+    ? new Date(meta.data.snapshot.built_at_utc).toLocaleDateString("de-DE")
+    : null
+
   const entries = ranking.data?.entries ?? []
   const maxV = entries.length ? Math.max(...entries.map((e) => e.value)) : 0
   const minV = entries.length ? Math.min(...entries.map((e) => e.value)) : 0
@@ -141,23 +145,40 @@ export function HomePage() {
         />
 
         <div className="grid lg:grid-cols-2">
-          <div className="relative px-6 py-10 sm:px-10 sm:py-14">
+          <div className="relative flex flex-col justify-center px-6 py-12 sm:px-10 sm:py-16">
             <div className="max-w-3xl">
-              <span className="inline-flex items-center gap-2 rounded-full border bg-background/80 px-3 py-1 text-xs font-medium text-muted-foreground">
-                <span className="size-1.5 rounded-full bg-primary" aria-hidden="true" />
-                Offene Regionaldaten
-              </span>
-              <h1 className="mt-5 font-display text-[2.25rem] font-semibold leading-[1.05] tracking-tight sm:text-[2.75rem]">
-                Deutschland Digital Monitor
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                <span className="inline-flex items-center gap-2 rounded-full border bg-background/80 px-3 py-1 text-xs font-medium text-muted-foreground">
+                  <span className="size-1.5 rounded-full bg-primary" aria-hidden="true" />
+                  Offene Regionaldaten
+                </span>
+                {snapshotDate && (
+                  <>
+                    <span className="hidden h-3.5 w-px bg-border sm:block" aria-hidden="true" />
+                    <span className="text-xs font-medium tabular-nums text-muted-foreground/80">
+                      Stand {snapshotDate}
+                    </span>
+                  </>
+                )}
+              </div>
+              <h1 className="mt-6 font-display text-[2.5rem] font-semibold leading-[1.02] tracking-tight text-balance sm:text-[3.25rem]">
+                Deutschland <span className="text-primary">Digital</span> Monitor
               </h1>
-              <p className="mt-4 max-w-[62ch] text-base leading-7 text-muted-foreground">
+              <span aria-hidden="true" className="mt-5 block h-1 w-16 rounded-full bg-primary" />
+              <p className="mt-5 max-w-[56ch] text-base leading-7 text-muted-foreground">
                 Offene Regionaldaten für Deutschland: Bund, Bundesländer und Landkreise / kreisfreie
                 Städte — erkunden, vergleichen, einordnen.
               </p>
-              <div className="mt-7">
+              <div className="mt-8 flex flex-wrap items-center gap-x-7 gap-y-3">
                 <Button asChild size="lg" className="rounded-full px-6">
                   <Link to="/explore">Deutschlandkarte öffnen</Link>
                 </Button>
+                <Link
+                  to="/methodology"
+                  className="text-sm font-medium text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
+                >
+                  Methodik &amp; Quellen
+                </Link>
               </div>
             </div>
           </div>
@@ -338,9 +359,7 @@ export function HomePage() {
               <span className="text-xs font-medium text-muted-foreground">Snapshot</span>
             </div>
             <p className="mt-4 text-[32px] font-semibold leading-none tabular-nums tracking-tight">
-              {meta.data?.snapshot.built_at_utc
-                ? new Date(meta.data.snapshot.built_at_utc).toLocaleDateString("de-DE")
-                : "–"}
+              {snapshotDate ?? "–"}
             </p>
             <div className="mt-auto pt-5">
               <div className="flex items-center gap-2">

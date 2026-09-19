@@ -207,73 +207,157 @@ export function HomePage() {
 
       <div className="w-full px-4 py-8 sm:px-6 lg:px-8">
         {/* stat ribbon */}
-        <section className="grid grid-cols-2 divide-y divide-border overflow-hidden rounded-3xl border bg-card sm:grid-cols-4 sm:divide-x sm:divide-y-0">
-          <div className="relative overflow-hidden p-5">
-            <div
+        <section className="grid grid-cols-2 gap-px overflow-hidden rounded-3xl border bg-border sm:grid-cols-4">
+          <div className="group relative flex flex-col bg-card p-5 transition-colors hover:bg-muted/30">
+            <span
               aria-hidden="true"
-              className="pointer-events-none absolute -right-6 -top-8 size-24 rounded-full bg-primary/5"
-            />
-            <div className="relative">
-              <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-                <MapIcon className="size-3.5" aria-hidden="true" />
-                Regionen
+              className="pointer-events-none absolute right-4 top-3 font-display text-3xl font-semibold tabular-nums leading-none text-foreground/[0.07]"
+            >
+              01
+            </span>
+            <div className="flex items-center gap-2.5">
+              <span
+                aria-hidden="true"
+                className="grid size-8 shrink-0 place-items-center rounded-xl"
+                style={{ backgroundColor: "#12457E1f", color: "#12457E" }}
+              >
+                <MapIcon className="size-4" />
+              </span>
+              <span className="text-xs font-medium text-muted-foreground">Regionen</span>
+            </div>
+            <p className="mt-4 text-[32px] font-semibold leading-none tabular-nums tracking-tight">
+              {regions.data?.length ?? "–"}
+            </p>
+            <div className="mt-auto pt-5">
+              <div className="flex h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                <span
+                  className="h-full"
+                  style={{
+                    width: `${(laender / Math.max(1, all.length)) * 100}%`,
+                    backgroundColor: "#12457E",
+                  }}
+                />
+                <span
+                  className="h-full"
+                  style={{
+                    width: `${(kreise / Math.max(1, all.length)) * 100}%`,
+                    backgroundColor: "#12457E66",
+                  }}
+                />
               </div>
-              <p className="mt-3 text-[28px] font-semibold leading-8 tabular-nums tracking-tight">
-                {regions.data?.length ?? "–"}
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">
+              <p className="mt-2 text-xs text-muted-foreground">
                 {laender} Länder · {kreise} Kreise
               </p>
             </div>
           </div>
-          <div className="relative overflow-hidden p-5">
-            <div
+
+          <div className="group relative flex flex-col bg-card p-5 transition-colors hover:bg-muted/30">
+            <span
               aria-hidden="true"
-              className="pointer-events-none absolute -bottom-10 -left-8 size-28 rounded-full bg-muted"
-            />
-            <div className="relative">
-              <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-                <LineChart className="size-3.5" aria-hidden="true" />
-                Indikatoren
+              className="pointer-events-none absolute right-4 top-3 font-display text-3xl font-semibold tabular-nums leading-none text-foreground/[0.07]"
+            >
+              02
+            </span>
+            <div className="flex items-center gap-2.5">
+              <span
+                aria-hidden="true"
+                className="grid size-8 shrink-0 place-items-center rounded-xl"
+                style={{ backgroundColor: "#2E8B8B1f", color: "#2E8B8B" }}
+              >
+                <LineChart className="size-4" />
+              </span>
+              <span className="text-xs font-medium text-muted-foreground">Indikatoren</span>
+            </div>
+            <p className="mt-4 text-[32px] font-semibold leading-none tabular-nums tracking-tight">
+              {indicators.data?.length ?? "–"}
+            </p>
+            <div className="mt-auto pt-5">
+              <div className="flex h-1.5 w-full gap-px overflow-hidden rounded-full">
+                {byCategory.map(([category]) => (
+                  <span
+                    key={category}
+                    className="h-full flex-1"
+                    style={{ backgroundColor: categoryColor(category) }}
+                  />
+                ))}
               </div>
-              <p className="mt-3 text-[28px] font-semibold leading-8 tabular-nums tracking-tight">
-                {indicators.data?.length ?? "–"}
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">in {byCategory.length} Kategorien</p>
+              <p className="mt-2 text-xs text-muted-foreground">in {byCategory.length} Kategorien</p>
             </div>
           </div>
-          <div className="relative overflow-hidden p-5">
-            <div
+
+          <div className="group relative flex flex-col bg-card p-5 transition-colors hover:bg-muted/30">
+            <span
               aria-hidden="true"
-              className="pointer-events-none absolute -right-10 -bottom-8 size-24 rounded-full bg-primary/[0.06]"
-            />
-            <div className="relative">
-              <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-                <Database className="size-3.5" aria-hidden="true" />
-                Quellen
+              className="pointer-events-none absolute right-4 top-3 font-display text-3xl font-semibold tabular-nums leading-none text-foreground/[0.07]"
+            >
+              03
+            </span>
+            <div className="flex items-center gap-2.5">
+              <span
+                aria-hidden="true"
+                className="grid size-8 shrink-0 place-items-center rounded-xl"
+                style={{ backgroundColor: "#B8822E1f", color: "#B8822E" }}
+              >
+                <Database className="size-4" />
+              </span>
+              <span className="text-xs font-medium text-muted-foreground">Quellen</span>
+            </div>
+            <p className="mt-4 text-[32px] font-semibold leading-none tabular-nums tracking-tight">
+              {meta.data?.sources.length ?? "–"}
+            </p>
+            <div className="mt-auto pt-5">
+              <div className="flex flex-wrap gap-1">
+                {Array.from({ length: meta.data?.sources.length ?? 0 }, (_, i) => (
+                  <span
+                    key={i}
+                    aria-hidden="true"
+                    className="size-2.5 rounded-[3px]"
+                    style={{ backgroundColor: "#B8822E" }}
+                  />
+                ))}
               </div>
-              <p className="mt-3 text-[28px] font-semibold leading-8 tabular-nums tracking-tight">
-                {meta.data?.sources.length ?? "–"}
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">amtliche Anbieter</p>
+              <p className="mt-2 text-xs text-muted-foreground">amtliche Anbieter</p>
             </div>
           </div>
-          <div className="relative overflow-hidden p-5">
-            <div
+
+          <div className="group relative flex flex-col bg-card p-5 transition-colors hover:bg-muted/30">
+            <span
               aria-hidden="true"
-              className="pointer-events-none absolute -right-8 -top-10 size-24 rounded-full border border-primary/15"
-            />
-            <div className="relative">
-              <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-                <CalendarDays className="size-3.5" aria-hidden="true" />
-                Snapshot
+              className="pointer-events-none absolute right-4 top-3 font-display text-3xl font-semibold tabular-nums leading-none text-foreground/[0.07]"
+            >
+              04
+            </span>
+            <div className="flex items-center gap-2.5">
+              <span
+                aria-hidden="true"
+                className="grid size-8 shrink-0 place-items-center rounded-xl"
+                style={{ backgroundColor: "#5A6A8A1f", color: "#5A6A8A" }}
+              >
+                <CalendarDays className="size-4" />
+              </span>
+              <span className="text-xs font-medium text-muted-foreground">Snapshot</span>
+            </div>
+            <p className="mt-4 text-[32px] font-semibold leading-none tabular-nums tracking-tight">
+              {meta.data?.snapshot.built_at_utc
+                ? new Date(meta.data.snapshot.built_at_utc).toLocaleDateString("de-DE")
+                : "–"}
+            </p>
+            <div className="mt-auto pt-5">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] tabular-nums text-muted-foreground">
+                  {fromYear ?? "–"}
+                </span>
+                <span className="relative h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+                  <span
+                    className="absolute inset-0 h-full"
+                    style={{ backgroundColor: "#5A6A8A" }}
+                  />
+                </span>
+                <span className="text-[10px] tabular-nums text-muted-foreground">
+                  {toYear ?? "–"}
+                </span>
               </div>
-              <p className="mt-3 text-[28px] font-semibold leading-8 tabular-nums tracking-tight">
-                {meta.data?.snapshot.built_at_utc
-                  ? new Date(meta.data.snapshot.built_at_utc).toLocaleDateString("de-DE")
-                  : "–"}
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">unveränderlich</p>
+              <p className="mt-2 text-xs text-muted-foreground">unveränderlich</p>
             </div>
           </div>
         </section>
